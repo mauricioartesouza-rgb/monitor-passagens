@@ -13,7 +13,7 @@ buscas_por_execucao = 7
 
 # As companhias vendem passagens com no máximo ~330 dias de antecedência.
 # Datas mais distantes que isso são ignoradas até abrirem as vendas.
-dias_max_antecedencia = 330
+dias_max_antecedencia = 300
 
 # Quantas buscas de uma viagem o robô precisa ter feito antes de
 # avisar "novo menor preço histórico" (evita avisos no começo,
