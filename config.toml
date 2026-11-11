@@ -1,0 +1,105 @@
+# =====================================================================
+#  CONFIGURAÇÃO DO MONITOR DE PASSAGENS
+#  Edite este arquivo direto no GitHub (ícone de lápis) quando quiser
+#  mudar datas, passageiros ou metas. Linhas com # são comentários.
+# =====================================================================
+
+[geral]
+# Quantas buscas fazer a cada execução (1 execução por dia).
+# 7 por dia ≈ 210 por mês. O plano grátis da SerpApi dá 250,
+# então sobra margem para testes manuais.
+# Se assinar um plano pago, pode aumentar (ex.: 30).
+buscas_por_execucao = 7
+
+# As companhias vendem passagens com no máximo ~330 dias de antecedência.
+# Datas mais distantes que isso são ignoradas até abrirem as vendas.
+dias_max_antecedencia = 330
+
+# Quantas buscas de uma viagem o robô precisa ter feito antes de
+# avisar "novo menor preço histórico" (evita avisos no começo,
+# quando qualquer preço é um "recorde").
+observacoes_antes_de_alertar = 10
+
+# Dia do resumo semanal no Telegram: 0=segunda ... 6=domingo, -1 desliga.
+dia_resumo_semanal = 0
+
+
+# ---------------------------------------------------------------------
+#  VIAGENS
+#  dias        = noites entre a ida e a volta
+#  meses       = a ida E a volta precisam cair dentro desses meses
+#  passo_dias  = de quantos em quantos dias testar uma data de ida
+#  preco_alvo  = (opcional) avisa quando o TOTAL ficar abaixo disso, em R$
+#  Passageiros: criancas = 2 a 11 anos (paga assento)
+#               bebes_colo = menos de 2 anos, no colo
+#               bebes_assento = menos de 2 anos, com assento próprio
+#  Atenção: vale a idade NA DATA DA VOLTA.
+# ---------------------------------------------------------------------
+
+[[viagens]]
+id = "orlando-2027"
+nome = "Orlando 2027"
+origem = "GRU"
+destino = "MCO"
+ano = 2027
+meses = [2, 3, 4]          # fevereiro a abril
+dias = 15
+passo_dias = 3
+ativa = true
+# preco_alvo = 18000
+[viagens.passageiros]
+adultos = 2
+criancas = 1               # filho com 2 anos
+bebes_colo = 0
+bebes_assento = 0
+
+[[viagens]]
+id = "bariloche-2027"
+nome = "Bariloche 2027"
+origem = "GRU"
+destino = "BRC"
+ano = 2027
+meses = [9]                # setembro
+dias = 12
+passo_dias = 2
+ativa = true
+# preco_alvo = 9000
+[viagens.passageiros]
+adultos = 2
+criancas = 1               # filho com 3 anos
+bebes_colo = 1             # bebê nascido em junho/2027 (~3 meses)
+bebes_assento = 0
+
+# As viagens de 2028 já ficam prontas. O robô só começa a buscá-las
+# quando as vendas abrirem (~330 dias antes).
+[[viagens]]
+id = "orlando-2028"
+nome = "Orlando 2028"
+origem = "GRU"
+destino = "MCO"
+ano = 2028
+meses = [2, 3, 4]
+dias = 15
+passo_dias = 3
+ativa = true
+[viagens.passageiros]
+adultos = 2
+criancas = 1               # filho mais velho com 3 anos
+bebes_colo = 1             # bebê com ~8 meses
+bebes_assento = 0
+
+[[viagens]]
+id = "bariloche-2028"
+nome = "Bariloche 2028"
+origem = "GRU"
+destino = "BRC"
+ano = 2028
+meses = [9]
+dias = 12
+passo_dias = 2
+ativa = true
+[viagens.passageiros]
+adultos = 2
+criancas = 1               # filho mais velho com 4 anos
+bebes_colo = 1             # bebê com ~1 ano e 3 meses
+bebes_assento = 0
