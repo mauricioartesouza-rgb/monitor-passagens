@@ -1,0 +1,89 @@
+{
+ "versao": 1,
+ "rodada": 7,
+ "cursores": {
+  "orlando-2027": 4,
+  "bariloche-2027": 3
+ },
+ "viagens": {
+  "orlando-2027": {
+   "observacoes": [
+    {
+     "ida": "2027-02-01",
+     "volta": "2027-02-16",
+     "em": "2026-11-11T15:11-03:00",
+     "preco": 10778.0,
+     "companhias": "American",
+     "escalas": 2,
+     "duracao_min": 1044,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      7000,
+      10500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTAxagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMTZqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-02-04",
+     "volta": "2027-02-19",
+     "em": "2026-11-11T15:12-03:00",
+     "preco": 13264.0,
+     "companhias": "Avianca",
+     "escalas": 1,
+     "duracao_min": 840,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      7000,
+      10500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTA0agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMTlqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-02-07",
+     "volta": "2027-02-22",
+     "em": "2026-11-11T15:12-03:00",
+     "preco": 10778.0,
+     "companhias": "American",
+     "escalas": 1,
+     "duracao_min": 1127,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      7000,
+      10500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTA3agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMjJqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-02-10",
+     "volta": "2027-02-25",
+     "em": "2026-11-11T15:12-03:00",
+     "preco": 10778.0,
+     "companhias": "American",
+     "escalas": 1,
+     "duracao_min": 1284,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      6900,
+      9400
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTEwagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMjVqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    }
+   ],
+   "recorde": {
+    "ida": "2027-02-01",
+    "volta": "2027-02-16",
+    "em": "2026-11-11T15:11-03:00",
+    "preco": 10778.0,
+    "companhias": "American",
+    "escalas": 2,
+    "duracao_min": 1044,
+    "nivel_google": "high",
+    "faixa_tipica": [
+     7000,
+     10500
+    ],
+    "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTAxagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMTZqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+   }
+  }
+ }
+}
