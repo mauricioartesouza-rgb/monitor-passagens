@@ -1,8 +1,8 @@
 {
  "versao": 1,
- "rodada": 7,
+ "rodada": 14,
  "cursores": {
-  "orlando-2027": 4,
+  "orlando-2027": 11,
   "bariloche-2027": 3
  },
  "viagens": {
@@ -67,22 +67,127 @@
       9400
      ],
      "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTEwagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMjVqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-02-13",
+     "volta": "2027-02-28",
+     "em": "2026-11-12T08:50-03:00",
+     "preco": 11751.0,
+     "companhias": "American",
+     "escalas": 1,
+     "duracao_min": 881,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      7000,
+      10500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTEzagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMjhqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-02-16",
+     "volta": "2027-03-03",
+     "em": "2026-11-12T08:51-03:00",
+     "preco": 10641.0,
+     "companhias": "LATAM",
+     "escalas": 1,
+     "duracao_min": 920,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      6900,
+      9400
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTE2agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMDNqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-02-19",
+     "volta": "2027-03-06",
+     "em": "2026-11-12T08:51-03:00",
+     "preco": 10734.0,
+     "companhias": "American",
+     "escalas": 1,
+     "duracao_min": 1234,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      7000,
+      10500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTE5agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMDZqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-02-22",
+     "volta": "2027-03-09",
+     "em": "2026-11-12T08:51-03:00",
+     "preco": 10641.0,
+     "companhias": "LATAM",
+     "escalas": 0,
+     "duracao_min": 530,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      7000,
+      10500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTIyagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMDlqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-02-25",
+     "volta": "2027-03-12",
+     "em": "2026-11-12T08:51-03:00",
+     "preco": 10641.0,
+     "companhias": "LATAM",
+     "escalas": 0,
+     "duracao_min": 530,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      7000,
+      10500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTI1agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMTJqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-02-28",
+     "volta": "2027-03-15",
+     "em": "2026-11-12T08:51-03:00",
+     "preco": 10641.0,
+     "companhias": "LATAM",
+     "escalas": 0,
+     "duracao_min": 535,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      7000,
+      10500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTI4agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMTVqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-03-03",
+     "volta": "2027-03-18",
+     "em": "2026-11-12T08:51-03:00",
+     "preco": 10641.0,
+     "companhias": "LATAM",
+     "escalas": 0,
+     "duracao_min": 530,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      6700,
+      9000
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAzLTAzagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMThqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
     }
    ],
    "recorde": {
-    "ida": "2027-02-01",
-    "volta": "2027-02-16",
-    "em": "2026-11-11T15:11-03:00",
-    "preco": 10778.0,
-    "companhias": "American",
-    "escalas": 2,
-    "duracao_min": 1044,
+    "ida": "2027-02-16",
+    "volta": "2027-03-03",
+    "em": "2026-11-12T08:51-03:00",
+    "preco": 10641.0,
+    "companhias": "LATAM",
+    "escalas": 1,
+    "duracao_min": 920,
     "nivel_google": "high",
     "faixa_tipica": [
-     7000,
-     10500
+     6900,
+     9400
     ],
-    "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTAxagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMTZqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTE2agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMDNqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
    }
   }
  }
