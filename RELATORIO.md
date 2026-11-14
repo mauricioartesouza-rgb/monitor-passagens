@@ -1,6 +1,6 @@
 # ✈️ Relatório de passagens
 
-_Atualizado em 2026-11-13 08:49-03:00 (horário de Brasília)_
+_Atualizado em 2026-11-14 08:30-03:00 (horário de Brasília)_
 
 ## Orlando 2027
 
@@ -29,6 +29,13 @@ Situação: 25 combinações de datas
 | 18/03/2027 | 02/04/2027 | [R$ 13.489](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAzLTE4agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMDJqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | COPA | 1 | 🔴 alto | 2026-11-13 |
 | 21/03/2027 | 05/04/2027 | [R$ 13.489](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAzLTIxagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMDVqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | COPA | 1 | 🔴 alto | 2026-11-13 |
 | 24/03/2027 | 08/04/2027 | [R$ 11.050](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAzLTI0agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMDhqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | Avianca | 1 | 🔴 alto | 2026-11-13 |
+| 27/03/2027 | 11/04/2027 | [R$ 13.166](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAzLTI3agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMTFqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | COPA | 1 | 🔴 alto | 2026-11-14 |
+| 30/03/2027 | 14/04/2027 | [R$ 11.123](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAzLTMwagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMTRqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | Avianca | 1 | 🔴 alto | 2026-11-14 |
+| 02/04/2027 | 17/04/2027 | [R$ 11.123](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA0LTAyagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMTdqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | Avianca | 1 | 🟡 normal | 2026-11-14 |
+| 05/04/2027 | 20/04/2027 | [R$ 11.123](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA0LTA1agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMjBqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | Avianca | 1 | 🟡 normal | 2026-11-14 |
+| 08/04/2027 | 23/04/2027 | [R$ 11.123](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA0LTA4agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMjNqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | Avianca | 1 | 🟡 normal | 2026-11-14 |
+| 11/04/2027 | 26/04/2027 | [R$ 11.123](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA0LTExagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMjZqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | Avianca | 1 | 🟡 normal | 2026-11-14 |
+| 14/04/2027 | 29/04/2027 | [R$ 14.604](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA0LTE0agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMjlqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | Avianca | 1 | 🔴 alto | 2026-11-14 |
 
 ## Bariloche 2027
 
