@@ -1,6 +1,6 @@
 # ✈️ Relatório de passagens
 
-_Atualizado em 2026-11-14 08:30-03:00 (horário de Brasília)_
+_Atualizado em 2026-11-15 08:33-03:00 (horário de Brasília)_
 
 ## Orlando 2027
 
@@ -11,13 +11,13 @@ Situação: 25 combinações de datas
 
 | Ida | Volta | Total | Companhia | Escalas | Google | Visto em |
 |---|---|---|---|---|---|---|
-| 01/02/2027 | 16/02/2027 | [R$ 10.778](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTAxagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMTZqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | American | 2 | 🔴 alto | 2026-11-11 |
-| 04/02/2027 | 19/02/2027 | [R$ 13.264](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTA0agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMTlqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | Avianca | 1 | 🔴 alto | 2026-11-11 |
-| 07/02/2027 | 22/02/2027 | [R$ 10.778](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTA3agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMjJqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | American | 1 | 🔴 alto | 2026-11-11 |
-| 10/02/2027 | 25/02/2027 | [R$ 10.778](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTEwagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMjVqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | American | 1 | 🔴 alto | 2026-11-11 |
-| 13/02/2027 | 28/02/2027 | [R$ 11.751](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTEzagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMjhqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | American | 1 | 🔴 alto | 2026-11-12 |
-| 16/02/2027 | 03/03/2027 | [R$ 10.641](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTE2agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMDNqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | LATAM | 1 | 🔴 alto | 2026-11-12 |
-| 19/02/2027 | 06/03/2027 | [R$ 10.734](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTE5agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMDZqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | American | 1 | 🔴 alto | 2026-11-12 |
+| 01/02/2027 | 16/02/2027 | [R$ 12.507](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTAxagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMTZqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | Avianca | 1 | 🔴 alto | 2026-11-15 |
+| 04/02/2027 | 19/02/2027 | [R$ 13.129](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTA0agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMTlqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | Avianca | 1 | 🔴 alto | 2026-11-15 |
+| 07/02/2027 | 22/02/2027 | [R$ 13.129](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTA3agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMjJqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | Avianca | 1 | 🔴 alto | 2026-11-15 |
+| 10/02/2027 | 25/02/2027 | [R$ 12.507](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTEwagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMjVqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | Avianca | 1 | 🔴 alto | 2026-11-15 |
+| 13/02/2027 | 28/02/2027 | [R$ 13.166](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTEzagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMjhqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | COPA | 1 | 🔴 alto | 2026-11-15 |
+| 16/02/2027 | 03/03/2027 | [R$ 10.854](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTE2agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMDNqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | COPA | 1 | 🔴 alto | 2026-11-15 |
+| 19/02/2027 | 06/03/2027 | [R$ 11.965](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTE5agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMDZqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | Avianca | 1 | 🔴 alto | 2026-11-15 |
 | 22/02/2027 | 09/03/2027 | [R$ 10.641](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTIyagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMDlqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | LATAM | 0 | 🔴 alto | 2026-11-12 |
 | 25/02/2027 | 12/03/2027 | [R$ 10.641](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTI1agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMTJqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | LATAM | 0 | 🔴 alto | 2026-11-12 |
 | 28/02/2027 | 15/03/2027 | [R$ 10.641](https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTI4agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMTVqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ) | LATAM | 0 | 🔴 alto | 2026-11-12 |
