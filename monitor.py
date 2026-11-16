@@ -289,7 +289,7 @@ def msg_alerta(viagem: dict, obs: dict, motivos: list[str]) -> str:
 
 
 def msg_resumo(viagens: list[dict], hist: dict, planos: dict) -> str:
-    linhas = ["📊 <b>Resumo semanal das passagens</b>", "O robô está funcionando ✅", ""]
+    linhas = ["📊 <b>Resumo semanal das passagens</b>", "O robô está funcionando ✅ Toque no preço para abrir a passagem.", f"<a href=\"https://github.com/{os.environ.get('GITHUB_REPOSITORY', '')}/blob/main/RELATORIO.md\">📄 Ver relatório completo</a>", ""]
     corte = (hoje() - dt.timedelta(days=7)).isoformat()
     for v in viagens:
         est = hist["viagens"].get(v["id"], {})
@@ -299,10 +299,10 @@ def msg_resumo(viagens: list[dict], hist: dict, planos: dict) -> str:
             linhas.append(f"   {planos[v['id']][1]}")
         else:
             semana = [o for o in est.get("observacoes", []) if o["em"] >= corte]
-            linhas.append(f"   Menor já visto: {brl(rec['preco'])} ({data_br(rec['ida'])} → {data_br(rec['volta'])})")
+            linhas.append(f"   Menor já visto: <a href=\"{html.escape(rec['link'])}\">{brl(rec['preco'])}</a> ({data_br(rec['ida'])} → {data_br(rec['volta'])})")
             if semana:
                 m = min(semana, key=lambda o: o["preco"])
-                linhas.append(f"   Melhor desta semana: {brl(m['preco'])} ({data_br(m['ida'])})")
+                linhas.append(f"   Melhor desta semana: <a href=\"{html.escape(m['link'])}\">{brl(m['preco'])}</a> ({data_br(m['ida'])})")
             linhas.append(f"   Buscas feitas: {len(est.get('observacoes', []))}")
         linhas.append("")
     return "\n".join(linhas).strip()
