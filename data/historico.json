@@ -1,8 +1,8 @@
 {
  "versao": 1,
- "rodada": 35,
+ "rodada": 42,
  "cursores": {
-  "orlando-2027": 32,
+  "orlando-2027": 39,
   "bariloche-2027": 3
  },
  "viagens": {
@@ -487,6 +487,111 @@
       10500
      ],
      "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTE5agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMDZqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-02-22",
+     "volta": "2027-03-09",
+     "em": "2026-11-16T08:58-03:00",
+     "preco": 10854.0,
+     "companhias": "COPA",
+     "escalas": 1,
+     "duracao_min": 1152,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      7000,
+      10500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTIyagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMDlqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-02-25",
+     "volta": "2027-03-12",
+     "em": "2026-11-16T08:58-03:00",
+     "preco": 10854.0,
+     "companhias": "COPA",
+     "escalas": 1,
+     "duracao_min": 712,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      7000,
+      10500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTI1agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMTJqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-02-28",
+     "volta": "2027-03-15",
+     "em": "2026-11-16T08:58-03:00",
+     "preco": 10854.0,
+     "companhias": "COPA",
+     "escalas": 1,
+     "duracao_min": 1152,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      7000,
+      10500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTI4agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMTVqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-03-03",
+     "volta": "2027-03-18",
+     "em": "2026-11-16T08:59-03:00",
+     "preco": 10854.0,
+     "companhias": "COPA",
+     "escalas": 1,
+     "duracao_min": 997,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      6700,
+      9000
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAzLTAzagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMThqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-03-06",
+     "volta": "2027-03-21",
+     "em": "2026-11-16T08:59-03:00",
+     "preco": 11965.0,
+     "companhias": "Avianca",
+     "escalas": 1,
+     "duracao_min": 730,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      6700,
+      9200
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAzLTA2agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMjFqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-03-09",
+     "volta": "2027-03-24",
+     "em": "2026-11-16T08:59-03:00",
+     "preco": 10854.0,
+     "companhias": "COPA",
+     "escalas": 1,
+     "duracao_min": 890,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      6700,
+      9000
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAzLTA5agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMjRqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-03-12",
+     "volta": "2027-03-27",
+     "em": "2026-11-16T08:59-03:00",
+     "preco": 13620.0,
+     "companhias": "United",
+     "escalas": 1,
+     "duracao_min": 840,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      6700,
+      9200
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAzLTEyagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMjdqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
     }
    ],
    "recorde": {
@@ -505,5 +610,6 @@
     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTE2agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMDNqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
    }
   }
- }
+ },
+ "ultimo_resumo": "2026-11-16"
 }
