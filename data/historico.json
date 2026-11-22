@@ -1,9 +1,9 @@
 {
  "versao": 1,
- "rodada": 93,
+ "rodada": 101,
  "cursores": {
-  "orlando-2027": 65,
-  "bariloche-2027": 28
+  "orlando-2027": 69,
+  "bariloche-2027": 32
  },
  "viagens": {
   "orlando-2027": {
@@ -982,6 +982,66 @@
       9200
      ],
      "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAzLTE1agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMzBqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-03-18",
+     "volta": "2027-04-02",
+     "em": "2026-11-22T08:38-03:00",
+     "preco": 11580.0,
+     "companhias": "Avianca",
+     "escalas": 1,
+     "duracao_min": 880,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      6700,
+      9200
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAzLTE4agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMDJqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-03-21",
+     "volta": "2027-04-05",
+     "em": "2026-11-22T08:38-03:00",
+     "preco": 13671.0,
+     "companhias": "Avianca",
+     "escalas": 1,
+     "duracao_min": 730,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      6700,
+      9200
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAzLTIxagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMDVqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-03-24",
+     "volta": "2027-04-08",
+     "em": "2026-11-22T08:38-03:00",
+     "preco": 11580.0,
+     "companhias": "Avianca",
+     "escalas": 1,
+     "duracao_min": 730,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      6700,
+      9000
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAzLTI0agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMDhqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-03-27",
+     "volta": "2027-04-11",
+     "em": "2026-11-22T08:38-03:00",
+     "preco": 13709.0,
+     "companhias": "COPA",
+     "escalas": 1,
+     "duracao_min": 736,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      6700,
+      9200
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAzLTI3agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMTFqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
     }
    ],
    "recorde": {
@@ -1109,6 +1169,42 @@
      "nivel_google": null,
      "faixa_tipica": null,
      "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA5LTA1agcIARIDR1JVcgcIARIDQlJDGh4SCjIwMjctMDktMTdqBwgBEgNCUkNyBwgBEgNHUlVAAUABQAJAA0gBcAGYAQE&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-09-03",
+     "volta": "2027-09-15",
+     "em": "2026-11-22T08:37-03:00",
+     "preco": 8190.0,
+     "companhias": "Aerolineas Argentinas",
+     "escalas": 1,
+     "duracao_min": 430,
+     "nivel_google": null,
+     "faixa_tipica": null,
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA5LTAzagcIARIDR1JVcgcIARIDQlJDGh4SCjIwMjctMDktMTVqBwgBEgNCUkNyBwgBEgNHUlVAAUABQAJAA0gBcAGYAQE&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-09-05",
+     "volta": "2027-09-17",
+     "em": "2026-11-22T08:38-03:00",
+     "preco": 8190.0,
+     "companhias": "Aerolineas Argentinas",
+     "escalas": 1,
+     "duracao_min": 470,
+     "nivel_google": null,
+     "faixa_tipica": null,
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA5LTA1agcIARIDR1JVcgcIARIDQlJDGh4SCjIwMjctMDktMTdqBwgBEgNCUkNyBwgBEgNHUlVAAUABQAJAA0gBcAGYAQE&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-09-01",
+     "volta": "2027-09-13",
+     "em": "2026-11-22T08:38-03:00",
+     "preco": 8190.0,
+     "companhias": "Aerolineas Argentinas",
+     "escalas": 1,
+     "duracao_min": 465,
+     "nivel_google": null,
+     "faixa_tipica": null,
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA5LTAxagcIARIDR1JVcgcIARIDQlJDGh4SCjIwMjctMDktMTNqBwgBEgNCUkNyBwgBEgNHUlVAAUABQAJAA0gBcAGYAQE&tfu=EgIIAQ"
     }
    ],
    "recorde": {
