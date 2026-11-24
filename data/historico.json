@@ -1,9 +1,9 @@
 {
  "versao": 1,
- "rodada": 108,
+ "rodada": 115,
  "cursores": {
-  "orlando-2027": 72,
-  "bariloche-2027": 36
+  "orlando-2027": 76,
+  "bariloche-2027": 39
  },
  "viagens": {
   "orlando-2027": {
@@ -1087,22 +1087,86 @@
       13500
      ],
      "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA0LTA1agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMjBqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-04-08",
+     "volta": "2027-04-23",
+     "em": "2026-11-24T08:50-03:00",
+     "preco": 10968.0,
+     "companhias": "Avianca",
+     "escalas": 1,
+     "duracao_min": 885,
+     "nivel_google": "typical",
+     "faixa_tipica": [
+      7600,
+      13500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA0LTA4agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMjNqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-04-11",
+     "volta": "2027-04-26",
+     "em": "2026-11-24T08:51-03:00",
+     "preco": 10198.0,
+     "companhias": "Avianca",
+     "escalas": 1,
+     "duracao_min": 885,
+     "nivel_google": "typical",
+     "faixa_tipica": [
+      7600,
+      13500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA0LTExagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMjZqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-04-14",
+     "volta": "2027-04-29",
+     "em": "2026-11-24T08:51-03:00",
+     "preco": 14376.0,
+     "companhias": "United",
+     "escalas": 1,
+     "duracao_min": 1701,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      7600,
+      12500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA0LTE0agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMjlqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-02-01",
+     "volta": "2027-02-16",
+     "em": "2026-11-24T08:51-03:00",
+     "preco": 12431.0,
+     "companhias": "Avianca",
+     "escalas": 1,
+     "duracao_min": 730,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      7000,
+      10500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTAxagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDItMTZqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
     }
    ],
    "recorde": {
-    "ida": "2027-02-16",
-    "volta": "2027-03-03",
-    "em": "2026-11-12T08:51-03:00",
-    "preco": 10641.0,
-    "companhias": "LATAM",
+    "ida": "2027-04-11",
+    "volta": "2027-04-26",
+    "em": "2026-11-24T08:51-03:00",
+    "preco": 10198.0,
+    "companhias": "Avianca",
     "escalas": 1,
-    "duracao_min": 920,
-    "nivel_google": "high",
+    "duracao_min": 885,
+    "nivel_google": "typical",
     "faixa_tipica": [
-     6900,
-     9400
+     7600,
+     13500
     ],
-    "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTE2agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMDNqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA0LTExagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDQtMjZqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+   },
+   "ultimo_alerta": {
+    "preco": 10198.0,
+    "em": "2026-11-24T08:51-03:00"
    }
   },
   "bariloche-2027": {
@@ -1298,6 +1362,42 @@
      "nivel_google": null,
      "faixa_tipica": null,
      "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA5LTA3agcIARIDR1JVcgcIARIDQlJDGh4SCjIwMjctMDktMTlqBwgBEgNCUkNyBwgBEgNHUlVAAUABQAJAA0gBcAGYAQE&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-09-01",
+     "volta": "2027-09-13",
+     "em": "2026-11-24T08:51-03:00",
+     "preco": 8300.0,
+     "companhias": "Aerolineas Argentinas",
+     "escalas": 1,
+     "duracao_min": 465,
+     "nivel_google": null,
+     "faixa_tipica": null,
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA5LTAxagcIARIDR1JVcgcIARIDQlJDGh4SCjIwMjctMDktMTNqBwgBEgNCUkNyBwgBEgNHUlVAAUABQAJAA0gBcAGYAQE&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-09-03",
+     "volta": "2027-09-15",
+     "em": "2026-11-24T08:51-03:00",
+     "preco": 8300.0,
+     "companhias": "Aerolineas Argentinas",
+     "escalas": 1,
+     "duracao_min": 430,
+     "nivel_google": null,
+     "faixa_tipica": null,
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA5LTAzagcIARIDR1JVcgcIARIDQlJDGh4SCjIwMjctMDktMTVqBwgBEgNCUkNyBwgBEgNHUlVAAUABQAJAA0gBcAGYAQE&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-09-05",
+     "volta": "2027-09-17",
+     "em": "2026-11-24T08:51-03:00",
+     "preco": 8300.0,
+     "companhias": "Aerolineas Argentinas",
+     "escalas": 1,
+     "duracao_min": 470,
+     "nivel_google": null,
+     "faixa_tipica": null,
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA5LTA1agcIARIDR1JVcgcIARIDQlJDGh4SCjIwMjctMDktMTdqBwgBEgNCUkNyBwgBEgNHUlVAAUABQAJAA0gBcAGYAQE&tfu=EgIIAQ"
     }
    ],
    "recorde": {
