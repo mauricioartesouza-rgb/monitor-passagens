@@ -1,0 +1,70 @@
+[
+ {
+  "id": "orlando",
+  "nome": "Orlando",
+  "origem": "GRU",
+  "destino": "MCO",
+  "dias_min": 11,
+  "dias_max": 16,
+  "ativa": true,
+  "historico_antigo": [
+   "orlando-2027",
+   "orlando-2028"
+  ],
+  "passageiros": {
+   "adultos": 2,
+   "criancas": 1,
+   "bebes_colo": 0,
+   "bebes_assento": 0
+  }
+ },
+ {
+  "id": "bariloche",
+  "nome": "Bariloche",
+  "origem": "GRU",
+  "destino": "BRC",
+  "dias_min": 11,
+  "dias_max": 16,
+  "ativa": true,
+  "historico_antigo": [
+   "bariloche-2027",
+   "bariloche-2028"
+  ],
+  "passageiros": {
+   "adultos": 2,
+   "criancas": 1,
+   "bebes_colo": 0,
+   "bebes_assento": 0
+  }
+ },
+ {
+  "id": "lisboa",
+  "nome": "Lisboa",
+  "origem": "GRU",
+  "destino": "LIS",
+  "dias_min": 10,
+  "dias_max": 10,
+  "ativa": true,
+  "passageiros": {
+   "adultos": 2,
+   "criancas": 1,
+   "bebes_colo": 0,
+   "bebes_assento": 0
+  }
+ },
+ {
+  "id": "ushuaia",
+  "nome": "Ushuaia",
+  "origem": "GRU",
+  "destino": "USH",
+  "dias_min": 7,
+  "dias_max": 7,
+  "ativa": true,
+  "passageiros": {
+   "adultos": 2,
+   "criancas": 1,
+   "bebes_colo": 0,
+   "bebes_assento": 0
+  }
+ }
+]
