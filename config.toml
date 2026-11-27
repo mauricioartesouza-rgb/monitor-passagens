@@ -26,6 +26,10 @@ dia_resumo_semanal = 0
 
 # ---------------------------------------------------------------------
 #  VIAGENS
+#  ATENÇÃO: depois que você mudar qualquer viagem pelo Telegram, o robô
+#  passa a usar o arquivo data/viagens.json e IGNORA a lista abaixo.
+#  Prefira mudar as viagens pelo Telegram (mande /ajuda para o bot).
+#
 #  dias_min / dias_max = duração da viagem (noites entre ida e volta)
 #  meses       = (opcional) limita a ida a esses meses, ex.: [2, 3, 4]
 #                sem essa linha, vale qualquer mês do ano
