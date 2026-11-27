@@ -2,24 +2,32 @@
 """
 Monitor de passagens aéreas -> avisos no iPhone via Telegram.
 
-Fonte dos preços: Google Flights (via SerpApi), que reúne as tarifas das
-companhias aéreas e das agências reais.
+Como funciona, todo dia:
+  1. VARREDURA (Travelpayouts / Aviasales, grátis): pega os preços mais
+     baratos já encontrados para cada mês, em qualquer data com a duração
+     configurada (ex.: 11 a 16 dias).
+  2. CONFERÊNCIA (Google Flights via SerpApi): confere as datas mais
+     baratas da varredura com os passageiros reais e o preço total atual.
+  3. AVISO: manda Telegram quando o preço conferido é o menor já visto,
+     está "baixo" segundo o Google ou abaixo da sua meta.
+
+Sem token da Travelpayouts, o robô sorteia datas para conferir.
 
 Uso:
-  python monitor.py                     busca normal (precisa das chaves)
+  python monitor.py                     execução normal (precisa das chaves)
   python monitor.py --simular           testa tudo com preços inventados
-  python monitor.py --listar            mostra as datas que serão pesquisadas
+  python monitor.py --varredura         só testa a varredura (não gasta SerpApi)
+  python monitor.py --listar            mostra o período e as combinações
   python monitor.py --testar-telegram   manda uma mensagem de teste
 
 Variáveis de ambiente:
-  SERPAPI_KEY, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
+  SERPAPI_KEY, TRAVELPAYOUTS_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
 
 Não precisa instalar nada além do Python 3.11+.
 """
 from __future__ import annotations
 
 import argparse
-import calendar
 import datetime as dt
 import html
 import json
@@ -38,7 +46,8 @@ ARQ_HIST = RAIZ / "data" / "historico.json"
 ARQ_HIST_SIM = RAIZ / "data" / "historico_simulado.json"
 ARQ_RELATORIO = RAIZ / "RELATORIO.md"
 FUSO_BR = dt.timezone(dt.timedelta(hours=-3))
-MAX_OBS_POR_VIAGEM = 600
+MAX_OBS_POR_VIAGEM = 800
+MESES_PT = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
 
 
 # --------------------------------------------------------------------- util
@@ -56,8 +65,17 @@ def brl(valor: float) -> str:
 
 def data_br(d: str | dt.date) -> str:
     if isinstance(d, str):
-        d = dt.date.fromisoformat(d)
+        d = dt.date.fromisoformat(d[:10])
     return d.strftime("%d/%m/%Y")
+
+
+def mes_br(chave: str) -> str:
+    ano, mes = chave.split("-")
+    return f"{MESES_PT[int(mes) - 1]}/{ano}"
+
+
+def dias_entre(ida: str, volta: str) -> int:
+    return (dt.date.fromisoformat(volta[:10]) - dt.date.fromisoformat(ida[:10])).days
 
 
 def duracao_txt(minutos) -> str:
@@ -78,6 +96,29 @@ def descricao_pax(p: dict) -> str:
     return " + ".join(partes)
 
 
+def pagantes(p: dict) -> int:
+    return p.get("adultos", 1) + p.get("criancas", 0) + p.get("bebes_assento", 0)
+
+
+def link_relatorio() -> str:
+    repo = os.environ.get("GITHUB_REPOSITORY", "")
+    return f"https://github.com/{repo}/blob/main/RELATORIO.md" if repo else "RELATORIO.md"
+
+
+def get_json(url: str, headers: dict | None = None, timeout: int = 90) -> dict:
+    req = urllib.request.Request(url, headers={"User-Agent": "monitor-passagens/2.0", **(headers or {})})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return json.load(r)
+    except urllib.error.HTTPError as e:
+        corpo = e.read().decode("utf-8", "replace")
+        try:
+            msg = json.loads(corpo).get("error", corpo)
+        except (json.JSONDecodeError, AttributeError):
+            msg = corpo
+        raise RuntimeError(f"HTTP {e.code}: {str(msg)[:300]}") from None
+
+
 def carregar_config() -> dict:
     with open(ARQ_CONFIG, "rb") as f:
         return tomllib.load(f)
@@ -86,8 +127,31 @@ def carregar_config() -> dict:
 def carregar_hist(caminho: Path) -> dict:
     if caminho.exists():
         with open(caminho, encoding="utf-8") as f:
-            return json.load(f)
-    return {"versao": 1, "rodada": 0, "cursores": {}, "viagens": {}}
+            hist = json.load(f)
+    else:
+        hist = {}
+    hist.setdefault("versao", 2)
+    hist.setdefault("rodada", 0)
+    hist.setdefault("viagens", {})
+    hist.setdefault("varredura", {})
+    hist.pop("cursores", None)  # usado só na versão 1
+    return hist
+
+
+def migrar_historico(hist: dict, viagens: list[dict]) -> None:
+    """Junta o histórico das viagens antigas (por ano/mês fixo) na viagem nova."""
+    for v in viagens:
+        for antigo in v.get("historico_antigo", []):
+            est_antigo = hist["viagens"].pop(antigo, None)
+            if not est_antigo:
+                continue
+            est = hist["viagens"].setdefault(v["id"], {"observacoes": []})
+            est["observacoes"] = sorted(est["observacoes"] + est_antigo.get("observacoes", []), key=lambda o: o["em"])
+            for o in est["observacoes"]:
+                if not est.get("recorde") or o["preco"] < est["recorde"]["preco"]:
+                    est["recorde"] = o
+            if est_antigo.get("ultimo_alerta") and not est.get("ultimo_alerta"):
+                est["ultimo_alerta"] = est_antigo["ultimo_alerta"]
 
 
 def salvar_hist(caminho: Path, hist: dict) -> None:
@@ -96,57 +160,126 @@ def salvar_hist(caminho: Path, hist: dict) -> None:
         json.dump(hist, f, ensure_ascii=False, indent=1)
 
 
-# ------------------------------------------------------------ datas a buscar
-def janela(viagem: dict, ref: dt.date):
-    meses = viagem["meses"]
-    m1, m2 = min(meses), max(meses)
-    anos = [viagem["ano"]] if "ano" in viagem else [ref.year, ref.year + 1, ref.year + 2]
-    for ano in anos:
-        inicio = dt.date(ano, m1, 1)
-        fim = dt.date(ano, m2, calendar.monthrange(ano, m2)[1])
-        if fim - dt.timedelta(days=viagem["dias"]) > ref:
-            return inicio, fim
-    return None
+# ------------------------------------------------------------ datas válidas
+def periodo(cfg: dict, ref: dt.date) -> tuple[dt.date, dt.date]:
+    """Primeira ida possível e última volta possível."""
+    return ref + dt.timedelta(days=1), ref + dt.timedelta(days=cfg["geral"].get("dias_max_antecedencia", 300))
 
 
-def pares_de_datas(viagem: dict, cfg: dict, ref: dt.date):
-    """Retorna (lista de (ida, volta), observação)."""
-    j = janela(viagem, ref)
-    if not j:
-        return [], "período já passou"
-    inicio, fim = j
-    dur = viagem["dias"]
-    passo = max(1, viagem.get("passo_dias", 3))
-    max_ant = cfg["geral"].get("dias_max_antecedencia", 330)
-    limite_venda = ref + dt.timedelta(days=max_ant)
-    ultima_ida = fim - dt.timedelta(days=dur)
+def data_valida(viagem: dict, cfg: dict, ref: dt.date, ida: dt.date, volta: dt.date) -> bool:
+    inicio, fim = periodo(cfg, ref)
+    dur = (volta - ida).days
+    if not (viagem["dias_min"] <= dur <= viagem["dias_max"]):
+        return False
+    if ida < inicio or volta > fim:
+        return False
+    meses = viagem.get("meses")
+    return not meses or ida.month in meses
 
+
+def todas_combinacoes(viagem: dict, cfg: dict, ref: dt.date) -> list[tuple[dt.date, dt.date]]:
+    inicio, fim = periodo(cfg, ref)
     pares = []
     ida = inicio
-    while ida <= ultima_ida:
-        volta = ida + dt.timedelta(days=dur)
-        if ida > ref and volta <= limite_venda:
-            pares.append((ida, volta))
-        ida += dt.timedelta(days=passo)
-
-    if pares:
-        return pares, f"{len(pares)} combinações de datas"
-    abre = inicio + dt.timedelta(days=dur) - dt.timedelta(days=max_ant)
-    return [], f"vendas ainda não abertas (começa a buscar por volta de {data_br(abre)})"
+    while ida + dt.timedelta(days=viagem["dias_min"]) <= fim:
+        for dur in range(viagem["dias_min"], viagem["dias_max"] + 1):
+            volta = ida + dt.timedelta(days=dur)
+            if data_valida(viagem, cfg, ref, ida, volta):
+                pares.append((ida, volta))
+        ida += dt.timedelta(days=1)
+    return pares
 
 
-# ------------------------------------------------------------------- buscas
+def meses_do_periodo(cfg: dict, ref: dt.date) -> list[str]:
+    inicio, fim = periodo(cfg, ref)
+    meses, d = [], inicio.replace(day=1)
+    while d <= fim:
+        meses.append(d.strftime("%Y-%m"))
+        d = (d + dt.timedelta(days=32)).replace(day=1)
+    return meses
+
+
+# ------------------------------------------------- 1. varredura Travelpayouts
+def varrer_travelpayouts(viagem: dict, cfg: dict, ref: dt.date, token: str) -> list[dict]:
+    """Preços em cache da Aviasales (1 adulto). Retorna candidatos ordenados por preço."""
+    melhores: dict[tuple[str, str], dict] = {}
+    for mes in meses_do_periodo(cfg, ref):
+        params = {
+            "origin": viagem["origem"],
+            "destination": viagem["destino"],
+            "departure_at": mes,
+            "one_way": "false",
+            "direct": "false",
+            "currency": "brl",
+            "market": "br",
+            "sorting": "price",
+            "unique": "false",
+            "limit": 1000,
+            "token": token,
+        }
+        dados = get_json("https://api.travelpayouts.com/aviasales/v3/prices_for_dates?" + urllib.parse.urlencode(params))
+        if dados.get("success") is False:
+            raise RuntimeError(f"Travelpayouts: {dados.get('error') or dados}")
+        for item in dados.get("data") or []:
+            try:
+                ida = dt.date.fromisoformat(str(item["departure_at"])[:10])
+                volta = dt.date.fromisoformat(str(item["return_at"])[:10])
+                preco = float(item["price"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            if not data_valida(viagem, cfg, ref, ida, volta):
+                continue
+            chave = (ida.isoformat(), volta.isoformat())
+            if chave not in melhores or preco < melhores[chave]["preco_pp"]:
+                melhores[chave] = {
+                    "ida": chave[0],
+                    "volta": chave[1],
+                    "preco_pp": preco,
+                    "companhia": item.get("airline") or "?",
+                    "escalas": item.get("transfers"),
+                }
+    return sorted(melhores.values(), key=lambda c: c["preco_pp"])
+
+
+def varrer_simulado(viagem: dict, cfg: dict, ref: dt.date) -> list[dict]:
+    base = 3600 if viagem["destino"] == "MCO" else 1900
+    pares = todas_combinacoes(viagem, cfg, ref)
+    amostra = random.sample(pares, min(len(pares), 150))
+    cands = [{
+        "ida": ida.isoformat(), "volta": volta.isoformat(),
+        "preco_pp": round(max(600, random.gauss(base, base * 0.2))),
+        "companhia": random.choice(["LA", "G3", "AD", "AA", "CM", "AR"]),
+        "escalas": random.choice([0, 1, 1, 2]),
+    } for ida, volta in amostra]
+    return sorted(cands, key=lambda c: c["preco_pp"])
+
+
+def resumo_varredura(cands: list[dict]) -> dict:
+    por_mes: dict[str, dict] = {}
+    for c in cands:
+        m = c["ida"][:7]
+        if m not in por_mes or c["preco_pp"] < por_mes[m]["preco_pp"]:
+            por_mes[m] = c
+    return {"em": agora_iso(), "candidatos": len(cands), "por_mes": dict(sorted(por_mes.items()))}
+
+
+# ------------------------------------------------ 2. conferência no Google
 STOPS = {None: 0, 0: 1, 1: 2, 2: 3}  # parâmetro "stops" da SerpApi
 
 
-def buscar_serpapi(viagem: dict, ida: dt.date, volta: dt.date, chave: str) -> dict | None:
+def link_google(viagem: dict, ida: str, volta: str) -> str:
+    q = f"Flights from {viagem['origem']} to {viagem['destino']} on {ida} through {volta}"
+    return "https://www.google.com/travel/flights?hl=pt-BR&curr=BRL&q=" + urllib.parse.quote(q)
+
+
+def buscar_serpapi(viagem: dict, ida: str, volta: str, chave: str) -> dict | None:
     pax = viagem.get("passageiros", {})
     params = {
         "engine": "google_flights",
         "departure_id": viagem["origem"],
         "arrival_id": viagem["destino"],
-        "outbound_date": ida.isoformat(),
-        "return_date": volta.isoformat(),
+        "outbound_date": ida,
+        "return_date": volta,
         "type": "1",  # ida e volta
         "currency": "BRL",
         "gl": "br",
@@ -158,17 +291,10 @@ def buscar_serpapi(viagem: dict, ida: dt.date, volta: dt.date, chave: str) -> di
         "stops": STOPS.get(viagem.get("escalas_max"), 0),
         "api_key": chave,
     }
-    url = "https://serpapi.com/search.json?" + urllib.parse.urlencode(params)
     try:
-        with urllib.request.urlopen(url, timeout=90) as r:
-            dados = json.load(r)
-    except urllib.error.HTTPError as e:
-        corpo = e.read().decode("utf-8", "replace")
-        try:
-            msg = json.loads(corpo).get("error", corpo)
-        except json.JSONDecodeError:
-            msg = corpo
-        raise RuntimeError(f"SerpApi HTTP {e.code}: {msg[:300]}") from None
+        dados = get_json("https://serpapi.com/search.json?" + urllib.parse.urlencode(params))
+    except RuntimeError as e:
+        raise RuntimeError(f"SerpApi {e}") from None
 
     if dados.get("error"):
         # "no results" não é erro do robô, só não há voo nessa data
@@ -196,17 +322,11 @@ def buscar_serpapi(viagem: dict, ida: dt.date, volta: dt.date, chave: str) -> di
     }
 
 
-def link_google(viagem: dict, ida: dt.date, volta: dt.date) -> str:
-    q = f"Flights from {viagem['origem']} to {viagem['destino']} on {ida.isoformat()} through {volta.isoformat()}"
-    return "https://www.google.com/travel/flights?hl=pt-BR&curr=BRL&q=" + urllib.parse.quote(q)
-
-
-def buscar_simulado(viagem: dict, ida: dt.date, volta: dt.date) -> dict:
+def buscar_simulado(viagem: dict, ida: str, volta: str) -> dict:
     pax = viagem.get("passageiros", {})
-    pagantes = pax.get("adultos", 1) + pax.get("criancas", 0) + pax.get("bebes_assento", 0)
-    base = 5200 if viagem["destino"] == "MCO" else 2600
-    preco = max(800, random.gauss(base, base * 0.18)) * pagantes + pax.get("bebes_colo", 0) * base * 0.1
-    tipico = [round(base * 0.85 * pagantes), round(base * 1.2 * pagantes)]
+    base = 4200 if viagem["destino"] == "MCO" else 2400
+    preco = max(800, random.gauss(base, base * 0.18)) * pagantes(pax) + pax.get("bebes_colo", 0) * base * 0.1
+    tipico = [round(base * 0.85 * pagantes(pax)), round(base * 1.2 * pagantes(pax))]
     nivel = "low" if preco < tipico[0] else ("high" if preco > tipico[1] else "typical")
     return {
         "preco": round(preco),
@@ -217,6 +337,30 @@ def buscar_simulado(viagem: dict, ida: dt.date, volta: dt.date) -> dict:
         "faixa_tipica": tipico,
         "link": link_google(viagem, ida, volta),
     }
+
+
+def escolher_para_conferir(viagem: dict, cands: list[dict], est: dict, cfg: dict, ref: dt.date,
+                           cota: int, ja: set) -> list[tuple[str, str, str]]:
+    """Datas a conferir no Google: as mais baratas da varredura e, se faltar, sorteadas."""
+    dias_reconf = cfg["geral"].get("reconferir_apos_dias", 3)
+    corte = (ref - dt.timedelta(days=dias_reconf)).isoformat()
+    recentes = {(o["ida"], o["volta"]) for o in est.get("observacoes", []) if o["em"][:10] > corte}
+    escolhidas = []
+    for c in cands:
+        if len(escolhidas) >= cota:
+            break
+        par = (c["ida"], c["volta"])
+        if par in recentes or par in ja:
+            continue
+        escolhidas.append((*par, "varredura"))
+        ja.add(par)
+    if len(escolhidas) < cota:
+        pares = [(i.isoformat(), v.isoformat()) for i, v in todas_combinacoes(viagem, cfg, ref)]
+        livres = [p for p in pares if p not in recentes and p not in ja]
+        for par in random.sample(livres, min(len(livres), cota - len(escolhidas))):
+            escolhidas.append((*par, "sorteio"))
+            ja.add(par)
+    return escolhidas
 
 
 # ----------------------------------------------------------------- telegram
@@ -242,7 +386,7 @@ def telegram(texto: str, enviar: bool) -> None:
 
 
 # --------------------------------------------------------------- alertas
-def avaliar(estado: dict, obs: dict, viagem: dict, cfg: dict) -> list[str]:
+def avaliar(estado: dict, obs: dict, viagem: dict, cfg: dict, ref: dt.date) -> list[str]:
     motivos = []
     recorde = estado.get("recorde")
     n_antes = len(estado.get("observacoes", []))
@@ -269,7 +413,7 @@ def avaliar(estado: dict, obs: dict, viagem: dict, cfg: dict) -> list[str]:
     # aviso, ou se o último aviso já tem 7 dias
     ultimo = estado.get("ultimo_alerta")
     if ultimo:
-        dias = (hoje() - dt.date.fromisoformat(ultimo["em"][:10])).days
+        dias = (ref - dt.date.fromisoformat(ultimo["em"][:10])).days
         if obs["preco"] >= ultimo["preco"] and dias < 7:
             return []
     return motivos
@@ -280,7 +424,7 @@ def msg_alerta(viagem: dict, obs: dict, motivos: list[str]) -> str:
     return (
         f"✈️ <b>{html.escape(viagem['nome'])}</b>: {brl(obs['preco'])}\n"
         f"👨‍👩‍👦 total para {descricao_pax(viagem.get('passageiros', {}))}\n"
-        f"📅 {data_br(obs['ida'])} → {data_br(obs['volta'])} ({viagem['dias']} dias)\n"
+        f"📅 {data_br(obs['ida'])} → {data_br(obs['volta'])} ({dias_entre(obs['ida'], obs['volta'])} dias)\n"
         f"🛫 {html.escape(obs['companhias'])} · {escalas} · ida {duracao_txt(obs['duracao_min'])}\n\n"
         + "\n".join(motivos)
         + f"\n\n<a href=\"{html.escape(obs['link'])}\">👉 Ver e comprar no Google Flights</a>\n"
@@ -288,51 +432,77 @@ def msg_alerta(viagem: dict, obs: dict, motivos: list[str]) -> str:
     )
 
 
-def msg_resumo(viagens: list[dict], hist: dict, planos: dict) -> str:
-    linhas = ["📊 <b>Resumo semanal das passagens</b>", "O robô está funcionando ✅ Toque no preço para abrir a passagem.", f"<a href=\"https://github.com/{os.environ.get('GITHUB_REPOSITORY', '')}/blob/main/RELATORIO.md\">📄 Ver relatório completo</a>", ""]
-    corte = (hoje() - dt.timedelta(days=7)).isoformat()
+def msg_resumo(viagens: list[dict], hist: dict, ref: dt.date) -> str:
+    linhas = ["📊 <b>Resumo semanal das passagens</b>", "O robô está funcionando ✅ Toque no preço para abrir a passagem.",
+              f"<a href=\"{html.escape(link_relatorio())}\">📄 Ver relatório completo</a>", ""]
+    corte = (ref - dt.timedelta(days=7)).isoformat()
     for v in viagens:
         est = hist["viagens"].get(v["id"], {})
-        linhas.append(f"<b>{html.escape(v['nome'])}</b>")
+        linhas.append(f"<b>{html.escape(v['nome'])}</b> ({v['dias_min']} a {v['dias_max']} dias)")
         rec = est.get("recorde")
         if not rec:
-            linhas.append(f"   {planos[v['id']][1]}")
+            linhas.append("   Ainda sem preços conferidos.")
         else:
             semana = [o for o in est.get("observacoes", []) if o["em"] >= corte]
-            linhas.append(f"   Menor já visto: <a href=\"{html.escape(rec['link'])}\">{brl(rec['preco'])}</a> ({data_br(rec['ida'])} → {data_br(rec['volta'])})")
+            linhas.append(f"   Menor já visto: <a href=\"{html.escape(rec['link'])}\">{brl(rec['preco'])}</a> "
+                          f"({data_br(rec['ida'])} → {data_br(rec['volta'])})")
             if semana:
                 m = min(semana, key=lambda o: o["preco"])
-                linhas.append(f"   Melhor desta semana: <a href=\"{html.escape(m['link'])}\">{brl(m['preco'])}</a> ({data_br(m['ida'])})")
-            linhas.append(f"   Buscas feitas: {len(est.get('observacoes', []))}")
+                linhas.append(f"   Melhor desta semana: <a href=\"{html.escape(m['link'])}\">{brl(m['preco'])}</a> "
+                              f"({data_br(m['ida'])} → {data_br(m['volta'])})")
+            linhas.append(f"   Buscas no Google: {len(est.get('observacoes', []))}")
+        var = hist["varredura"].get(v["id"])
+        if var and var.get("por_mes"):
+            mes, c = min(var["por_mes"].items(), key=lambda kv: kv[1]["preco_pp"])
+            linhas.append(f"   Mês mais barato na varredura: {mes_br(mes)} (~{brl(c['preco_pp'])} por pessoa)")
         linhas.append("")
     return "\n".join(linhas).strip()
 
 
 # ---------------------------------------------------------------- relatório
-def gerar_relatorio(viagens: list[dict], hist: dict, planos: dict, caminho: Path) -> None:
-    out = ["# ✈️ Relatório de passagens", "", f"_Atualizado em {agora_iso().replace('T', ' ')} (horário de Brasília)_", ""]
+def gerar_relatorio(viagens: list[dict], hist: dict, cfg: dict, ref: dt.date, caminho: Path) -> None:
+    inicio, fim = periodo(cfg, ref)
+    out = ["# ✈️ Relatório de passagens", "",
+           f"_Atualizado em {agora_iso().replace('T', ' ')} (horário de Brasília)_  ",
+           f"_Período pesquisado: ida a partir de {data_br(inicio)}, volta até {data_br(fim)}_", ""]
+    corte = (ref - dt.timedelta(days=14)).isoformat()
     for v in viagens:
         est = hist["viagens"].get(v["id"], {})
         obs = est.get("observacoes", [])
         out += [f"## {v['nome']}", "",
-                f"{v['origem']} → {v['destino']} · {v['dias']} dias · {descricao_pax(v.get('passageiros', {}))}  ",
-                f"Situação: {planos[v['id']][1]}", ""]
+                f"{v['origem']} → {v['destino']} · {v['dias_min']} a {v['dias_max']} dias · "
+                f"{descricao_pax(v.get('passageiros', {}))}", ""]
         rec = est.get("recorde")
         if rec:
             out += [f"**Menor preço já visto: {brl(rec['preco'])}** ({data_br(rec['ida'])} → {data_br(rec['volta'])}, "
                     f"{rec['companhias']}, visto em {rec['em'][:10]}) · [abrir]({rec['link']})", ""]
-            # melhor preço atual por data de ida (última vez que cada data foi vista)
-            atual = {}
-            for o in obs:
-                atual[o["ida"]] = o
-            out += ["| Ida | Volta | Total | Companhia | Escalas | Google | Visto em |",
-                    "|---|---|---|---|---|---|---|"]
-            for ida in sorted(atual):
-                o = atual[ida]
+        # último preço conferido de cada par de datas, só dos últimos 14 dias
+        atual = {}
+        for o in obs:
+            if o["em"] >= corte:
+                atual[(o["ida"], o["volta"])] = o
+        if atual:
+            out += ["### Mais baratos conferidos no Google (últimos 14 dias)", "",
+                    "| Ida | Volta | Dias | Total | Companhia | Escalas | Google | Visto em |",
+                    "|---|---|---|---|---|---|---|---|"]
+            for o in sorted(atual.values(), key=lambda o: o["preco"])[:15]:
                 nivel = {"low": "🟢 baixo", "typical": "🟡 normal", "high": "🔴 alto"}.get(o.get("nivel_google"), "-")
-                out.append(f"| {data_br(o['ida'])} | {data_br(o['volta'])} | [{brl(o['preco'])}]({o['link']}) | "
-                           f"{o['companhias']} | {o['escalas']} | {nivel} | {o['em'][:10]} |")
+                out.append(f"| {data_br(o['ida'])} | {data_br(o['volta'])} | {dias_entre(o['ida'], o['volta'])} | "
+                           f"[{brl(o['preco'])}]({o['link']}) | {o['companhias']} | {o['escalas']} | {nivel} | {o['em'][:10]} |")
             out.append("")
+        var = hist["varredura"].get(v["id"])
+        if var and var.get("por_mes"):
+            out += [f"### Varredura Aviasales: menor preço por pessoa em cada mês de ida",
+                    f"_{var['candidatos']} combinações encontradas em {var['em'][:10]}. "
+                    f"Estimativa para 1 adulto; o total real vem da conferência no Google._", "",
+                    "| Mês | Por pessoa | Total estimado | Ida → Volta |", "|---|---|---|---|"]
+            n = pagantes(v.get("passageiros", {}))
+            for mes, c in var["por_mes"].items():
+                out.append(f"| {mes_br(mes)} | {brl(c['preco_pp'])} | ~{brl(c['preco_pp'] * n)} | "
+                           f"{data_br(c['ida'])} → {data_br(c['volta'])} |")
+            out.append("")
+        if not rec and not var:
+            out += ["_Ainda sem dados._", ""]
     caminho.write_text("\n".join(out), encoding="utf-8")
 
 
@@ -341,7 +511,8 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Monitor de passagens")
     ap.add_argument("--simular", action="store_true", help="usa preços inventados (não gasta buscas)")
     ap.add_argument("--telegram", action="store_true", help="no modo simular, envia também no Telegram")
-    ap.add_argument("--listar", action="store_true", help="só mostra as datas que serão pesquisadas")
+    ap.add_argument("--varredura", action="store_true", help="só roda a varredura da Travelpayouts e mostra o resultado")
+    ap.add_argument("--listar", action="store_true", help="só mostra o período e as combinações de datas")
     ap.add_argument("--testar-telegram", action="store_true", help="envia uma mensagem de teste")
     args = ap.parse_args()
 
@@ -356,14 +527,27 @@ def main() -> int:
         return 0
 
     viagens = [v for v in cfg.get("viagens", []) if v.get("ativa", True)]
-    planos = {v["id"]: pares_de_datas(v, cfg, ref) for v in viagens}
+    tp_token = os.environ.get("TRAVELPAYOUTS_TOKEN", "")
 
     if args.listar:
+        inicio, fim = periodo(cfg, ref)
+        print(f"Período: ida a partir de {data_br(inicio)}, volta até {data_br(fim)}")
         for v in viagens:
-            pares, nota = planos[v["id"]]
-            print(f"\n{v['nome']}: {nota}")
-            for ida, volta in pares:
-                print(f"   {data_br(ida)} → {data_br(volta)}")
+            print(f"{v['nome']}: {len(todas_combinacoes(v, cfg, ref))} combinações de {v['dias_min']} a {v['dias_max']} dias")
+        return 0
+
+    if args.varredura:
+        if not tp_token:
+            print("Falta a variável TRAVELPAYOUTS_TOKEN.")
+            return 1
+        for v in viagens:
+            cands = varrer_travelpayouts(v, cfg, ref, tp_token)
+            res = resumo_varredura(cands)
+            print(f"\n{v['nome']}: {res['candidatos']} combinações válidas")
+            for mes, c in res["por_mes"].items():
+                print(f"   {mes_br(mes)}: {brl(c['preco_pp'])} por pessoa ({data_br(c['ida'])} → {data_br(c['volta'])})")
+            for c in cands[:5]:
+                print(f"   top: {brl(c['preco_pp'])} {data_br(c['ida'])} → {data_br(c['volta'])} {c['companhia']}")
         return 0
 
     chave = os.environ.get("SERPAPI_KEY", "")
@@ -373,53 +557,64 @@ def main() -> int:
 
     arq_hist = ARQ_HIST_SIM if args.simular else ARQ_HIST
     hist = carregar_hist(arq_hist)
+    migrar_historico(hist, viagens)
     enviar = (not args.simular) or args.telegram
-
-    # escolhe as buscas desta execução: revezando entre as viagens e
-    # andando pelas datas de cada uma, para cobrir tudo com poucas buscas
-    ativas = [v for v in viagens if planos[v["id"]][0]]
-    orcamento = cfg["geral"].get("buscas_por_execucao", 3)
-    total_pares = sum(len(planos[v["id"]][0]) for v in ativas)
-    escolhidas, ja = [], set()
-    rodada = hist.get("rodada", 0)
-    tentativas = 0
-    while ativas and len(escolhidas) < min(orcamento, total_pares) and tentativas < orcamento * 4:
-        v = ativas[(rodada + tentativas) % len(ativas)]
-        tentativas += 1
-        pares = planos[v["id"]][0]
-        c = hist["cursores"].get(v["id"], 0)
-        hist["cursores"][v["id"]] = c + 1
-        ida, volta = pares[c % len(pares)]
-        if (v["id"], ida) in ja:
-            continue
-        ja.add((v["id"], ida))
-        escolhidas.append((v, ida, volta))
-    hist["rodada"] = rodada + tentativas
-
     erros = []
-    for v, ida, volta in escolhidas:
-        print(f"Buscando {v['nome']}: {data_br(ida)} → {data_br(volta)} ...")
-        try:
-            res = buscar_simulado(v, ida, volta) if args.simular else buscar_serpapi(v, ida, volta, chave)
-        except Exception as e:  # noqa: BLE001
-            erros.append(f"{v['nome']} {data_br(ida)}: {e}")
-            print("   ERRO:", e)
-            continue
-        if res is None:
-            print("   sem voos para essa data")
-            continue
-        obs = {"ida": ida.isoformat(), "volta": volta.isoformat(), "em": agora_iso(), **res}
-        print(f"   {brl(obs['preco'])} · {obs['companhias']} · Google: {obs.get('nivel_google')}")
 
+    # 1. varredura
+    candidatos = {}
+    for v in viagens:
+        try:
+            if args.simular:
+                cands = varrer_simulado(v, cfg, ref)
+            elif tp_token:
+                cands = varrer_travelpayouts(v, cfg, ref, tp_token)
+            else:
+                cands = []
+        except Exception as e:  # noqa: BLE001
+            erros.append(f"Varredura {v['nome']}: {e}")
+            print("   ERRO varredura:", e)
+            cands = []
+        candidatos[v["id"]] = cands
+        if cands:
+            hist["varredura"][v["id"]] = resumo_varredura(cands)
+        print(f"Varredura {v['nome']}: {len(cands)} combinações com preço")
+
+    # 2. conferência no Google: divide as buscas entre as viagens
+    orcamento = cfg["geral"].get("buscas_por_execucao", 7)
+    rodada = hist.get("rodada", 0)
+    cotas = {v["id"]: orcamento // len(viagens) for v in viagens} if viagens else {}
+    for i in range(orcamento - sum(cotas.values())):
+        cotas[viagens[(rodada + i) % len(viagens)]["id"]] += 1
+    hist["rodada"] = rodada + 1
+
+    total_buscas = 0
+    for v in viagens:
         est = hist["viagens"].setdefault(v["id"], {"observacoes": []})
-        motivos = avaliar(est, obs, v, cfg)
-        est["observacoes"].append(obs)
-        est["observacoes"] = est["observacoes"][-MAX_OBS_POR_VIAGEM:]
-        if not est.get("recorde") or obs["preco"] < est["recorde"]["preco"]:
-            est["recorde"] = obs
-        if motivos:
-            telegram(msg_alerta(v, obs, motivos), enviar)
-            est["ultimo_alerta"] = {"preco": obs["preco"], "em": obs["em"]}
+        escolhidas = escolher_para_conferir(v, candidatos[v["id"]], est, cfg, ref, cotas[v["id"]], set())
+        for ida, volta, origem in escolhidas:
+            total_buscas += 1
+            print(f"Conferindo {v['nome']} ({origem}): {data_br(ida)} → {data_br(volta)} ...")
+            try:
+                res = buscar_simulado(v, ida, volta) if args.simular else buscar_serpapi(v, ida, volta, chave)
+            except Exception as e:  # noqa: BLE001
+                erros.append(f"{v['nome']} {data_br(ida)}: {e}")
+                print("   ERRO:", e)
+                continue
+            if res is None:
+                print("   sem voos para essa data")
+                continue
+            obs = {"ida": ida, "volta": volta, "em": agora_iso(), **res}
+            print(f"   {brl(obs['preco'])} · {obs['companhias']} · Google: {obs.get('nivel_google')}")
+
+            motivos = avaliar(est, obs, v, cfg, ref)
+            est["observacoes"].append(obs)
+            est["observacoes"] = est["observacoes"][-MAX_OBS_POR_VIAGEM:]
+            if not est.get("recorde") or obs["preco"] < est["recorde"]["preco"]:
+                est["recorde"] = obs
+            if motivos:
+                telegram(msg_alerta(v, obs, motivos), enviar)
+                est["ultimo_alerta"] = {"preco": obs["preco"], "em": obs["em"]}
 
     # avisa problemas (ex.: cota da SerpApi acabou), no máximo 1x por dia
     if erros and hist.get("ultimo_erro_avisado") != ref.isoformat():
@@ -428,14 +623,14 @@ def main() -> int:
 
     dia_resumo = cfg["geral"].get("dia_resumo_semanal", 0)
     if dia_resumo >= 0 and ref.weekday() == dia_resumo and hist.get("ultimo_resumo") != ref.isoformat():
-        telegram(msg_resumo(viagens, hist, planos), enviar)
+        telegram(msg_resumo(viagens, hist, ref), enviar)
         hist["ultimo_resumo"] = ref.isoformat()
 
     salvar_hist(arq_hist, hist)
-    gerar_relatorio(viagens, hist, planos, RAIZ / "RELATORIO_simulado.md" if args.simular else ARQ_RELATORIO)
-    print(f"\nPronto: {len(escolhidas)} buscas, {len(erros)} erros.")
+    gerar_relatorio(viagens, hist, cfg, ref, RAIZ / "RELATORIO_simulado.md" if args.simular else ARQ_RELATORIO)
+    print(f"\nPronto: {total_buscas} buscas no Google, {len(erros)} erros.")
     # só falha a execução se TODAS as buscas deram erro
-    return 1 if escolhidas and len(erros) == len(escolhidas) else 0
+    return 1 if total_buscas and len(erros) >= total_buscas else 0
 
 
 if __name__ == "__main__":
