@@ -75,21 +75,40 @@ Na aba **Actions → Monitor de passagens → Run workflow**, escolha:
 - **testar-varredura**: mostra no log os preços da Travelpayouts por mês (não gasta SerpApi).
 - **simular**: manda avisos com **preços inventados**, só para ver o formato.
 - **buscar**: a busca real. Depois abra o **RELATORIO.md**.
+- **bot**: lê e responde agora as mensagens do Telegram.
 
 A partir daí ele roda sozinho **todo dia às 8h**.
 
 ---
 
+## Mudar as viagens pelo Telegram
+
+Mande mensagem para o seu bot. Ele lê as mensagens a cada ~10 minutos e responde. Comandos:
+
+| Mensagem | O que faz |
+|---|---|
+| `/nova Orlando 11-16` | nova viagem, qualquer data, 11 a 16 dias |
+| `/nova Bariloche 12 em setembro` | ida em setembro, 12 dias |
+| `/nova Paris 10-14 de 01/03/2027 a 30/04/2027` | dentro desse período |
+| `/nova Miami 10/03/2027 a 25/03/2027` | datas exatas |
+| `/viagens` | lista as viagens com o número de cada uma |
+| `/dias 1 12-15` | muda a duração da viagem 1 |
+| `/periodo 1 01/09/2027 a 30/09/2027` | muda o período (`/periodo 1 livre` volta para qualquer data) |
+| `/pessoas 1 2 1` | 2 adultos e 1 criança (3º número: bebê de colo) |
+| `/meta 1 15000` | avisa quando o total ficar abaixo de R$ 15.000 |
+| `/pausar 1`, `/ativar 1`, `/remover 1` | pausa, reativa ou apaga |
+| `/precos` | resumo dos preços |
+| `/ajuda` | mostra os comandos |
+
+O bot só obedece o seu chat (`TELEGRAM_CHAT_ID`). As viagens ficam salvas em `data/viagens.json`.
+Quanto mais viagens ativas, menos buscas no Google cada uma recebe por dia (são 7 no total).
+
 ## Ajustes no `config.toml`
 
 Edite direto no GitHub (abra o arquivo e clique no lápis ✏️):
 
-- **Duração**: `dias_min` e `dias_max` de cada viagem.
-- **Só alguns meses**: adicione `meses = [6, 7]` na viagem (sem essa linha, vale qualquer mês).
-- **Passageiros**: `adultos`, `criancas` (2 a 11 anos), `bebes_colo` (menos de 2 anos).
-- **Meta de preço**: tire o `#` da linha `preco_alvo` e coloque o valor total.
 - **Mais buscas por dia**: aumente `buscas_por_execucao`. O plano grátis da SerpApi tem 250 por mês (7 por dia já usa ~210).
-- **Só voo direto ou no máximo 1 escala**: adicione `escalas_max = 0` ou `escalas_max = 1` na viagem.
+- **Só voo direto ou no máximo 1 escala**: adicione `"escalas_max": 0` ou `1` na viagem, em `data/viagens.json`.
 
 ## Dicas
 
