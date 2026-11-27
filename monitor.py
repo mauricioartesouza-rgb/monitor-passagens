@@ -19,6 +19,8 @@ Uso:
   python monitor.py --varredura         só testa a varredura (não gasta SerpApi)
   python monitor.py --listar            mostra o período e as combinações
   python monitor.py --testar-telegram   manda uma mensagem de teste
+  python monitor.py --bot               lê e responde suas mensagens no Telegram
+  python monitor.py --comando "texto"   testa um comando do bot sem Telegram
 
 Variáveis de ambiente:
   SERPAPI_KEY, TRAVELPAYOUTS_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
@@ -46,6 +48,8 @@ ARQ_CONFIG = RAIZ / "config.toml"
 ARQ_HIST = RAIZ / "data" / "historico.json"
 ARQ_HIST_SIM = RAIZ / "data" / "historico_simulado.json"
 ARQ_RELATORIO = RAIZ / "RELATORIO.md"
+ARQ_VIAGENS = RAIZ / "data" / "viagens.json"
+ARQ_BOT = RAIZ / "data" / "bot.json"
 FUSO_BR = dt.timezone(dt.timedelta(hours=-3))
 MAX_OBS_POR_VIAGEM = 800
 MESES_PT = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
@@ -125,6 +129,20 @@ def carregar_config() -> dict:
         return tomllib.load(f)
 
 
+def carregar_viagens(cfg: dict) -> list[dict]:
+    """Viagens ficam em data/viagens.json (o bot do Telegram edita). Sem o arquivo, usa o config.toml."""
+    if ARQ_VIAGENS.exists():
+        with open(ARQ_VIAGENS, encoding="utf-8") as f:
+            return json.load(f)
+    return [dict(v) for v in cfg.get("viagens", [])]
+
+
+def salvar_viagens(viagens: list[dict]) -> None:
+    ARQ_VIAGENS.parent.mkdir(parents=True, exist_ok=True)
+    with open(ARQ_VIAGENS, "w", encoding="utf-8") as f:
+        json.dump(viagens, f, ensure_ascii=False, indent=1)
+
+
 def carregar_hist(caminho: Path) -> dict:
     if caminho.exists():
         with open(caminho, encoding="utf-8") as f:
@@ -167,8 +185,18 @@ def periodo(cfg: dict, ref: dt.date) -> tuple[dt.date, dt.date]:
     return ref + dt.timedelta(days=1), ref + dt.timedelta(days=cfg["geral"].get("dias_max_antecedencia", 300))
 
 
-def data_valida(viagem: dict, cfg: dict, ref: dt.date, ida: dt.date, volta: dt.date) -> bool:
+def janela(viagem: dict, cfg: dict, ref: dt.date) -> tuple[dt.date, dt.date]:
+    """Período da viagem: o geral, cortado pelas datas "de" e "ate" da viagem (se houver)."""
     inicio, fim = periodo(cfg, ref)
+    if viagem.get("de"):
+        inicio = max(inicio, dt.date.fromisoformat(viagem["de"]))
+    if viagem.get("ate"):
+        fim = min(fim, dt.date.fromisoformat(viagem["ate"]))
+    return inicio, fim
+
+
+def data_valida(viagem: dict, cfg: dict, ref: dt.date, ida: dt.date, volta: dt.date) -> bool:
+    inicio, fim = janela(viagem, cfg, ref)
     dur = (volta - ida).days
     if not (viagem["dias_min"] <= dur <= viagem["dias_max"]):
         return False
@@ -179,7 +207,7 @@ def data_valida(viagem: dict, cfg: dict, ref: dt.date, ida: dt.date, volta: dt.d
 
 
 def todas_combinacoes(viagem: dict, cfg: dict, ref: dt.date) -> list[tuple[dt.date, dt.date]]:
-    inicio, fim = periodo(cfg, ref)
+    inicio, fim = janela(viagem, cfg, ref)
     pares = []
     ida = inicio
     while ida + dt.timedelta(days=viagem["dias_min"]) <= fim:
@@ -191,13 +219,31 @@ def todas_combinacoes(viagem: dict, cfg: dict, ref: dt.date) -> list[tuple[dt.da
     return pares
 
 
-def meses_do_periodo(cfg: dict, ref: dt.date) -> list[str]:
-    inicio, fim = periodo(cfg, ref)
+def meses_do_periodo(viagem: dict, cfg: dict, ref: dt.date) -> list[str]:
+    inicio, fim = janela(viagem, cfg, ref)
     meses, d = [], inicio.replace(day=1)
     while d <= fim:
-        meses.append(d.strftime("%Y-%m"))
+        if not viagem.get("meses") or d.month in viagem["meses"]:
+            meses.append(d.strftime("%Y-%m"))
         d = (d + dt.timedelta(days=32)).replace(day=1)
     return meses
+
+
+def dias_txt(v: dict) -> str:
+    return f"{v['dias_min']} dias" if v["dias_min"] == v["dias_max"] else f"{v['dias_min']} a {v['dias_max']} dias"
+
+
+def periodo_txt(v: dict) -> str:
+    partes = []
+    if v.get("de") and v.get("ate") and dias_entre(v["de"], v["ate"]) == v["dias_min"] == v["dias_max"]:
+        return f"ida {data_br(v['de'])}, volta {data_br(v['ate'])}"
+    if v.get("de"):
+        partes.append(f"ida a partir de {data_br(v['de'])}")
+    if v.get("ate"):
+        partes.append(f"volta até {data_br(v['ate'])}")
+    if v.get("meses"):
+        partes.append("ida em " + ", ".join(MESES_PT[m - 1] for m in v["meses"]))
+    return ", ".join(partes) or "qualquer data"
 
 
 # ------------------------------------------------- 1. varredura Travelpayouts
@@ -205,7 +251,7 @@ def varrer_travelpayouts(viagem: dict, cfg: dict, ref: dt.date, token: str) -> l
     """Preços em cache da Aviasales (1 adulto). Retorna candidatos ordenados por preço."""
     token = token.strip()
     melhores: dict[tuple[str, str], dict] = {}
-    for mes in meses_do_periodo(cfg, ref):
+    for mes in meses_do_periodo(viagem, cfg, ref):
         params = {
             "origin": viagem["origem"],
             "destination": viagem["destino"],
@@ -441,7 +487,7 @@ def msg_resumo(viagens: list[dict], hist: dict, ref: dt.date) -> str:
     corte = (ref - dt.timedelta(days=7)).isoformat()
     for v in viagens:
         est = hist["viagens"].get(v["id"], {})
-        linhas.append(f"<b>{html.escape(v['nome'])}</b> ({v['dias_min']} a {v['dias_max']} dias)")
+        linhas.append(f"<b>{html.escape(v['nome'])}</b> ({dias_txt(v)}, {periodo_txt(v)})")
         rec = est.get("recorde")
         if not rec:
             linhas.append("   Ainda sem preços conferidos.")
@@ -473,7 +519,7 @@ def gerar_relatorio(viagens: list[dict], hist: dict, cfg: dict, ref: dt.date, ca
         est = hist["viagens"].get(v["id"], {})
         obs = est.get("observacoes", [])
         out += [f"## {v['nome']}", "",
-                f"{v['origem']} → {v['destino']} · {v['dias_min']} a {v['dias_max']} dias · "
+                f"{v['origem']} → {v['destino']} · {dias_txt(v)} · {periodo_txt(v)} · "
                 f"{descricao_pax(v.get('passageiros', {}))}", ""]
         rec = est.get("recorde")
         if rec:
@@ -509,6 +555,314 @@ def gerar_relatorio(viagens: list[dict], hist: dict, cfg: dict, ref: dt.date, ca
     caminho.write_text("\n".join(out), encoding="utf-8")
 
 
+# --------------------------------------------------------- bot do Telegram
+MESES_NOMES = {
+    "janeiro": 1, "jan": 1, "fevereiro": 2, "fev": 2, "marco": 3, "mar": 3, "abril": 4, "abr": 4,
+    "maio": 5, "mai": 5, "junho": 6, "jun": 6, "julho": 7, "jul": 7, "agosto": 8, "ago": 8,
+    "setembro": 9, "set": 9, "outubro": 10, "out": 10, "novembro": 11, "nov": 11, "dezembro": 12, "dez": 12,
+}
+PALAVRAS_SOLTAS = {"de", "da", "do", "a", "ate", "e", "entre", "dias", "dia", "para", "pra", "em", "no", "na",
+                   "por", "com", "volta", "ida", "periodo", "-"}
+
+AJUDA = (
+    "✈️ <b>Comandos do monitor de passagens</b>\n\n"
+    "<b>Nova viagem</b> (destino + dias):\n"
+    "<code>/nova Orlando 11-16</code>  qualquer data, 11 a 16 dias\n"
+    "<code>/nova Lisboa 10</code>  qualquer data, 10 dias\n"
+    "<code>/nova Bariloche 12 em setembro</code>  ida em setembro\n"
+    "<code>/nova Paris 10-14 de 01/03/2027 a 30/04/2027</code>  dentro desse período\n"
+    "<code>/nova Miami 10/03/2027 a 25/03/2027</code>  datas exatas\n\n"
+    "<b>Ver e mudar</b> (o número vem de /viagens):\n"
+    "/viagens  lista as viagens\n"
+    "<code>/dias 1 12-15</code>  muda a duração\n"
+    "<code>/periodo 1 01/09/2027 a 30/09/2027</code>  muda o período\n"
+    "<code>/periodo 1 setembro outubro</code>  só esses meses\n"
+    "<code>/periodo 1 livre</code>  qualquer data de novo\n"
+    "<code>/pessoas 1 2 1</code>  2 adultos e 1 criança\n"
+    "<code>/meta 1 15000</code>  avisa abaixo de R$ 15.000 (0 tira)\n"
+    "<code>/pausar 1</code>, <code>/ativar 1</code>, <code>/remover 1</code>\n"
+    "/precos  resumo dos preços\n\n"
+    "<i>Respondo em até ~15 min. A busca no Google roda todo dia às 8h e divide as buscas entre as viagens ativas.</i>"
+)
+
+
+def sem_acento(t: str) -> str:
+    return t.translate(str.maketrans("áàâãéêíóôõúüç", "aaaaeeiooouuc"))
+
+
+def ler_data(dia: str, mes: str, ano: str | None, ref: dt.date, depois_de: dt.date | None = None) -> dt.date:
+    d, m = int(dia), int(mes)
+    try:
+        if ano:
+            return dt.date(int(ano) + (2000 if len(ano) == 2 else 0), m, d)
+        base = depois_de or ref
+        data = dt.date(base.year, m, d)
+        return data if data >= base else dt.date(base.year + 1, m, d)
+    except ValueError:
+        raise ValueError(f"Data inválida: {dia}/{mes}" + (f"/{ano}" if ano else "")) from None
+
+
+def interpretar_periodo(texto: str, ref: dt.date) -> tuple[dict, str]:
+    """Tira do texto as datas (dd/mm[/aaaa]) e os nomes de meses. Devolve (campos, texto que sobrou)."""
+    campos: dict = {}
+    datas = list(re.finditer(r"(\d{1,2})/(\d{1,2})(?:/(\d{4}|\d{2}))?", texto))
+    if len(datas) not in (0, 2):
+        raise ValueError("Use duas datas, ida e volta. Ex.: 01/09/2027 a 30/09/2027")
+    if datas:
+        d1 = ler_data(*datas[0].groups(), ref)
+        d2 = ler_data(*datas[1].groups(), ref, depois_de=d1)
+        if d2 <= d1:
+            raise ValueError("A segunda data precisa ser depois da primeira.")
+        if d1 <= ref:
+            raise ValueError("A data de ida já passou.")
+        campos["de"], campos["ate"] = d1.isoformat(), d2.isoformat()
+        texto = texto[:datas[0].start()] + " " + texto[datas[0].end():datas[1].start()] + " " + texto[datas[1].end():]
+    meses, resto = [], []
+    for palavra in texto.split():
+        chave = sem_acento(palavra.lower().strip(",."))
+        if chave in MESES_NOMES:
+            meses.append(MESES_NOMES[chave])
+        else:
+            resto.append(palavra)
+    if meses:
+        campos["meses"] = sorted(set(meses))
+    return campos, " ".join(resto)
+
+
+RE_FAIXA = r"\b(\d{1,2})\s*(?:-|a|até|ate)\s*(\d{1,2})\b"
+
+
+def interpretar_dias(texto: str) -> tuple[int, int] | None:
+    m = re.search(RE_FAIXA, texto)
+    if m:
+        return int(m.group(1)), int(m.group(2))
+    m = re.search(r"\b(\d{1,2})\b", texto)
+    return (int(m.group(1)), int(m.group(1))) if m else None
+
+
+def validar_dias(dmin: int, dmax: int) -> None:
+    if not (1 <= dmin <= dmax <= 60):
+        raise ValueError("Duração inválida. Use de 1 a 60 dias, ex.: 11-16")
+
+
+def buscar_destino(nome: str) -> dict:
+    """Converte nome de cidade (ou código) em código IATA, pela busca pública da Travelpayouts."""
+    nome = nome.strip()
+    params = [("term", nome), ("locale", "pt"), ("types[]", "city"), ("types[]", "airport")]
+    lista = get_json("https://autocomplete.travelpayouts.com/places2?" + urllib.parse.urlencode(params), timeout=30)
+    if not lista:
+        raise ValueError(f"Não achei o destino \"{nome}\". Tente o nome da cidade ou o código do aeroporto (ex.: MCO).")
+    escolhido = lista[0]
+    if re.fullmatch(r"[A-Za-z]{3}", nome):
+        escolhido = next((x for x in lista if x["code"].upper() == nome.upper()), escolhido)
+    aeroporto = escolhido["type"] == "airport"
+    cidade = escolhido.get("city_name") if aeroporto else escolhido["name"]
+    return {"codigo": escolhido["code"], "nome": cidade or escolhido["name"], "pais": escolhido.get("country_name") or "",
+            "aeroporto": escolhido["name"] if aeroporto else (escolhido.get("main_airport_name") or "")}
+
+
+def novo_id(nome: str, viagens: list[dict]) -> str:
+    base = re.sub(r"[^a-z0-9]+", "-", sem_acento(nome.lower())).strip("-") or "viagem"
+    ids, i, novo = {v["id"] for v in viagens}, 2, base
+    while novo in ids:
+        novo, i = f"{base}-{i}", i + 1
+    return novo
+
+
+def linha_viagem(i: int, v: dict) -> str:
+    status = "✅" if v.get("ativa", True) else "⏸️ (pausada)"
+    extra = f" · meta {brl(v['preco_alvo'])}" if v.get("preco_alvo") else ""
+    return (f"{status} <b>{i}. {html.escape(v['nome'])}</b> ({v['origem']} → {v['destino']})\n"
+            f"     {dias_txt(v)} · {periodo_txt(v)}\n"
+            f"     {descricao_pax(v.get('passageiros', {}))}{extra}")
+
+
+def msg_varredura_nova(v: dict, cfg: dict, ref: dt.date, tp_token: str) -> str:
+    if not todas_combinacoes(v, cfg, ref):
+        _, fim = periodo(cfg, ref)
+        return (f"\n\n⏳ Nenhuma data possível agora. As companhias vendem até ~{data_br(fim)}; "
+                "se o período for depois disso, começo a buscar quando ele entrar à venda.")
+    if not tp_token:
+        return ""
+    try:
+        cands = varrer_travelpayouts(v, cfg, ref, tp_token)
+    except Exception as e:  # noqa: BLE001
+        return f"\n\n(varredura falhou: {html.escape(str(e)[:100])})"
+    if not cands:
+        return "\n\nAinda não há preços em cache para essa rota. Vou sortear datas para conferir no Google."
+    linhas = ["\n\n🔎 <b>Mais barato por mês</b> (estimativa por pessoa, Aviasales):"]
+    for mes, c in resumo_varredura(cands)["por_mes"].items():
+        linhas.append(f"   {mes_br(mes)}: {brl(c['preco_pp'])} ({data_br(c['ida'])} → {data_br(c['volta'])})")
+    linhas.append("\nO preço total da família vem na busca do Google, todo dia às 8h.")
+    return "\n".join(linhas)
+
+
+def pegar_viagem(args: list[str], viagens: list[dict]) -> tuple[int, dict]:
+    arg = args[0] if args else ""
+    if not arg.isdigit() or not (1 <= int(arg) <= len(viagens)):
+        raise ValueError("Número da viagem inválido. Veja os números em /viagens")
+    return int(arg), viagens[int(arg) - 1]
+
+
+def responder(texto: str, viagens: list[dict], cfg: dict, ref: dt.date, tp_token: str, hist: dict) -> tuple[str, bool]:
+    """Interpreta uma mensagem do Telegram. Devolve (resposta, mudou_viagens)."""
+    partes = texto.strip().split(maxsplit=1)
+    cmd = sem_acento(partes[0].lower().lstrip("/").split("@")[0]) if partes else ""
+    resto = partes[1] if len(partes) > 1 else ""
+    args = resto.split()
+
+    try:
+        if cmd in ("start", "ajuda", "help", "menu", "comandos"):
+            return AJUDA, False
+
+        if cmd in ("viagens", "lista", "listar"):
+            if not viagens:
+                return "Nenhuma viagem cadastrada. Use /nova (veja /ajuda).", False
+            return "🗺️ <b>Suas viagens</b>\n\n" + "\n\n".join(linha_viagem(i, v) for i, v in enumerate(viagens, 1)), False
+
+        if cmd in ("precos", "resumo"):
+            return msg_resumo([v for v in viagens if v.get("ativa", True)], hist, ref), False
+
+        if cmd in ("nova", "novo", "viagem", "adicionar"):
+            if not resto:
+                return "Diga o destino e os dias. Ex.: <code>/nova Orlando 11-16</code>", False
+            campos, sobra = interpretar_periodo(resto, ref)
+            dias = interpretar_dias(sobra)
+            sobra = re.sub(RE_FAIXA + r"|\b\d{1,2}\b", " ", sobra)
+            nome = " ".join(p for p in sobra.split() if sem_acento(p.lower()) not in PALAVRAS_SOLTAS)
+            if not nome:
+                return "Faltou o destino. Ex.: <code>/nova Orlando 11-16</code>", False
+            if dias is None:
+                if not campos.get("de"):
+                    return "Faltou a quantidade de dias. Ex.: <code>/nova Orlando 11-16</code>", False
+                n = dias_entre(campos["de"], campos["ate"])
+                dias = (n, n)
+            validar_dias(*dias)
+            if campos.get("de") and dias_entre(campos["de"], campos["ate"]) < dias[0]:
+                return "⚠️ O período é menor que a quantidade de dias da viagem.", False
+            dest = buscar_destino(nome)
+            modelo = viagens[0] if viagens else {}
+            apelido = nome.upper() if re.fullmatch(r"[A-Za-z]{3}", nome) else nome.title()
+            v = {
+                "id": novo_id(apelido, viagens),
+                "nome": apelido,
+                "origem": modelo.get("origem") or cfg["geral"].get("origem_padrao", "GRU"),
+                "destino": dest["codigo"],
+                "dias_min": dias[0],
+                "dias_max": dias[1],
+                "ativa": True,
+                **campos,
+                "passageiros": dict(modelo.get("passageiros") or {"adultos": 1}),
+            }
+            viagens.append(v)
+            local = ", ".join(x for x in (dest["nome"], dest["pais"]) if x)
+            if dest["aeroporto"] and dest["aeroporto"] != dest["nome"]:
+                local += f" · aeroporto {dest['aeroporto']}"
+            txt = (f"✅ <b>Viagem adicionada!</b>\n\n{linha_viagem(len(viagens), v)}\n"
+                   f"     <i>{html.escape(local)}</i>\n\n"
+                   f"Destino errado? Use <code>/remover {len(viagens)}</code> e mande de novo com o código do aeroporto.")
+            return txt + msg_varredura_nova(v, cfg, ref, tp_token), True
+
+        if cmd in ("remover", "apagar", "excluir"):
+            i, v = pegar_viagem(args, viagens)
+            viagens.pop(i - 1)
+            return f"🗑️ {html.escape(v['nome'])} removida.", True
+
+        if cmd in ("pausar", "ativar"):
+            i, v = pegar_viagem(args, viagens)
+            v["ativa"] = cmd == "ativar"
+            return linha_viagem(i, v), True
+
+        if cmd == "dias":
+            i, v = pegar_viagem(args, viagens)
+            dias = interpretar_dias(" ".join(args[1:]))
+            if not dias:
+                return "Ex.: <code>/dias 1 12-15</code>", False
+            validar_dias(*dias)
+            v["dias_min"], v["dias_max"] = dias
+            return "Duração alterada:\n\n" + linha_viagem(i, v), True
+
+        if cmd == "periodo":
+            i, v = pegar_viagem(args, viagens)
+            corpo = " ".join(args[1:])
+            if sem_acento(corpo.lower()) in ("livre", "qualquer", "qualquer data", "tudo"):
+                for k in ("de", "ate", "meses"):
+                    v.pop(k, None)
+                return "Período liberado:\n\n" + linha_viagem(i, v), True
+            campos, _ = interpretar_periodo(corpo, ref)
+            if not campos:
+                return "Ex.: <code>/periodo 1 01/09/2027 a 30/09/2027</code> ou <code>/periodo 1 setembro</code>", False
+            for k in ("de", "ate", "meses"):
+                v.pop(k, None)
+            v.update(campos)
+            txt = "Período alterado:\n\n" + linha_viagem(i, v)
+            if v.get("de") and dias_entre(v["de"], v["ate"]) < v["dias_min"]:
+                txt += "\n\n⚠️ O período é menor que a duração. Ajuste com /dias"
+            return txt + msg_varredura_nova(v, cfg, ref, tp_token), True
+
+        if cmd == "pessoas":
+            i, v = pegar_viagem(args, viagens)
+            nums = [int(x) for x in args[1:] if x.isdigit()]
+            if not nums or nums[0] < 1:
+                return "Ex.: <code>/pessoas 1 2 1</code> (2 adultos, 1 criança). Bebê de colo é o 3º número.", False
+            v["passageiros"] = {"adultos": nums[0], "criancas": nums[1] if len(nums) > 1 else 0,
+                                "bebes_colo": nums[2] if len(nums) > 2 else 0, "bebes_assento": 0}
+            return "Passageiros alterados:\n\n" + linha_viagem(i, v), True
+
+        if cmd == "meta":
+            i, v = pegar_viagem(args, viagens)
+            valor = re.sub(r"\D", "", args[1].split(",")[0]) if len(args) > 1 else ""
+            if not valor:
+                return "Ex.: <code>/meta 1 15000</code> (0 tira a meta)", False
+            if int(valor) == 0:
+                v.pop("preco_alvo", None)
+            else:
+                v["preco_alvo"] = int(valor)
+            return "Meta alterada:\n\n" + linha_viagem(i, v), True
+    except ValueError as e:
+        return f"⚠️ {html.escape(str(e))}", False
+    except RuntimeError as e:
+        return f"⚠️ Não consegui consultar agora ({html.escape(str(e)[:120])}). Tente de novo mais tarde.", False
+
+    return "Não entendi. 🤔\n\n" + AJUDA, False
+
+
+def rodar_bot(cfg: dict, ref: dt.date, tp_token: str) -> int:
+    token = os.environ.get("TELEGRAM_TOKEN", "")
+    chat = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+    if not (token and chat):
+        print("Defina TELEGRAM_TOKEN e TELEGRAM_CHAT_ID.")
+        return 1
+    estado = json.loads(ARQ_BOT.read_text(encoding="utf-8")) if ARQ_BOT.exists() else {}
+    params = {"timeout": 0, "allowed_updates": json.dumps(["message"])}
+    if estado.get("offset"):
+        params["offset"] = estado["offset"]
+    dados = get_json(f"https://api.telegram.org/bot{token}/getUpdates?" + urllib.parse.urlencode(params), timeout=30)
+    updates = dados.get("result") or []
+    print(f"{len(updates)} mensagens novas")
+    if not updates:
+        return 0
+    viagens = carregar_viagens(cfg)
+    hist = carregar_hist(ARQ_HIST)
+    mudou = False
+    for up in updates:
+        estado["offset"] = up["update_id"] + 1
+        msg = up.get("message") or {}
+        if str((msg.get("chat") or {}).get("id")) != chat:
+            print("ignorada: mensagem de outro chat")
+            continue
+        texto = msg.get("text") or ""
+        print(f"> {texto[:80]}")
+        resposta, alterou = responder(texto, viagens, cfg, ref, tp_token, hist)
+        mudou = mudou or alterou
+        telegram(resposta, True)
+    if mudou:
+        salvar_viagens(viagens)
+    ARQ_BOT.parent.mkdir(parents=True, exist_ok=True)
+    ARQ_BOT.write_text(json.dumps(estado), encoding="utf-8")
+    return 0
+
+
 # --------------------------------------------------------------------- main
 def main() -> int:
     ap = argparse.ArgumentParser(description="Monitor de passagens")
@@ -517,6 +871,8 @@ def main() -> int:
     ap.add_argument("--varredura", action="store_true", help="só roda a varredura da Travelpayouts e mostra o resultado")
     ap.add_argument("--listar", action="store_true", help="só mostra o período e as combinações de datas")
     ap.add_argument("--testar-telegram", action="store_true", help="envia uma mensagem de teste")
+    ap.add_argument("--bot", action="store_true", help="lê e responde as mensagens do Telegram")
+    ap.add_argument("--comando", help="testa um comando do bot localmente (salva em data/viagens.json)")
     args = ap.parse_args()
 
     cfg = carregar_config()
@@ -529,14 +885,24 @@ def main() -> int:
         telegram("✅ <b>Teste OK!</b>\nO monitor de passagens consegue te mandar avisos aqui.", True)
         return 0
 
-    viagens = [v for v in cfg.get("viagens", []) if v.get("ativa", True)]
     tp_token = os.environ.get("TRAVELPAYOUTS_TOKEN", "")
+    if args.bot:
+        return rodar_bot(cfg, ref, tp_token)
+    if args.comando is not None:
+        todas = carregar_viagens(cfg)
+        resposta, mudou = responder(args.comando, todas, cfg, ref, tp_token, carregar_hist(ARQ_HIST))
+        print(resposta)
+        if mudou:
+            salvar_viagens(todas)
+        return 0
+
+    viagens = [v for v in carregar_viagens(cfg) if v.get("ativa", True)]
 
     if args.listar:
         inicio, fim = periodo(cfg, ref)
         print(f"Período: ida a partir de {data_br(inicio)}, volta até {data_br(fim)}")
         for v in viagens:
-            print(f"{v['nome']}: {len(todas_combinacoes(v, cfg, ref))} combinações de {v['dias_min']} a {v['dias_max']} dias")
+            print(f"{v['nome']}: {len(todas_combinacoes(v, cfg, ref))} combinações, {dias_txt(v)}, {periodo_txt(v)}")
         return 0
 
     if args.varredura:
@@ -588,9 +954,12 @@ def main() -> int:
     # 2. conferência no Google: divide as buscas entre as viagens
     orcamento = cfg["geral"].get("buscas_por_execucao", 7)
     rodada = hist.get("rodada", 0)
-    cotas = {v["id"]: orcamento // len(viagens) for v in viagens} if viagens else {}
-    for i in range(orcamento - sum(cotas.values())):
-        cotas[viagens[(rodada + i) % len(viagens)]["id"]] += 1
+    com_datas = [v for v in viagens if candidatos[v["id"]] or todas_combinacoes(v, cfg, ref)]
+    cotas = {v["id"]: 0 for v in viagens}
+    for v in com_datas:
+        cotas[v["id"]] = orcamento // len(com_datas)
+    for i in range(orcamento - sum(cotas.values()) if com_datas else 0):
+        cotas[com_datas[(rodada + i) % len(com_datas)]["id"]] += 1
     hist["rodada"] = rodada + 1
 
     total_buscas = 0
