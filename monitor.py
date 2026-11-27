@@ -571,7 +571,8 @@ AJUDA = (
     "<code>/nova Lisboa 10</code>  qualquer data, 10 dias\n"
     "<code>/nova Bariloche 12 em setembro</code>  ida em setembro\n"
     "<code>/nova Paris 10-14 de 01/03/2027 a 30/04/2027</code>  dentro desse período\n"
-    "<code>/nova Miami 10/03/2027 a 25/03/2027</code>  datas exatas\n\n"
+    "<code>/nova Miami 10/03/2027 a 25/03/2027</code>  datas exatas\n"
+    "Atalho: <code>/ushuaia 7</code> ou <code>Lisboa 10</code> também cria a viagem.\n\n"
     "<b>Ver e mudar</b> (o número vem de /viagens):\n"
     "/viagens  lista as viagens\n"
     "<code>/dias 1 12-15</code>  muda a duração\n"
@@ -584,6 +585,11 @@ AJUDA = (
     "/precos  resumo dos preços\n\n"
     "<i>Respondo em até ~15 min. A busca no Google roda todo dia às 8h e divide as buscas entre as viagens ativas.</i>"
 )
+
+
+COMANDOS = {"start", "ajuda", "help", "menu", "comandos", "viagens", "lista", "listar", "precos", "resumo",
+            "nova", "novo", "viagem", "adicionar", "remover", "apagar", "excluir", "pausar", "ativar",
+            "dias", "periodo", "pessoas", "meta"}
 
 
 def sem_acento(t: str) -> str:
@@ -602,7 +608,7 @@ def ler_data(dia: str, mes: str, ano: str | None, ref: dt.date, depois_de: dt.da
         raise ValueError(f"Data inválida: {dia}/{mes}" + (f"/{ano}" if ano else "")) from None
 
 
-def interpretar_periodo(texto: str, ref: dt.date) -> tuple[dict, str]:
+def interpretar_periodo(texto: str, ref: dt.date, com_destino: bool = False) -> tuple[dict, str]:
     """Tira do texto as datas (dd/mm[/aaaa]) e os nomes de meses. Devolve (campos, texto que sobrou)."""
     campos: dict = {}
     datas = list(re.finditer(r"(\d{1,2})/(\d{1,2})(?:/(\d{4}|\d{2}))?", texto))
@@ -618,9 +624,11 @@ def interpretar_periodo(texto: str, ref: dt.date) -> tuple[dict, str]:
         campos["de"], campos["ate"] = d1.isoformat(), d2.isoformat()
         texto = texto[:datas[0].start()] + " " + texto[datas[0].end():datas[1].start()] + " " + texto[datas[1].end():]
     meses, resto = [], []
+    viu_numero = not com_destino  # com destino, mês só vale depois dos dias ("Rio de Janeiro 5 em julho")
     for palavra in texto.split():
         chave = sem_acento(palavra.lower().strip(",."))
-        if chave in MESES_NOMES:
+        viu_numero = viu_numero or bool(re.search(r"\d", chave))
+        if viu_numero and chave in MESES_NOMES:
             meses.append(MESES_NOMES[chave])
         else:
             resto.append(palavra)
@@ -709,6 +717,9 @@ def responder(texto: str, viagens: list[dict], cfg: dict, ref: dt.date, tp_token
     partes = texto.strip().split(maxsplit=1)
     cmd = sem_acento(partes[0].lower().lstrip("/").split("@")[0]) if partes else ""
     resto = partes[1] if len(partes) > 1 else ""
+    # atalho: "/ushuaia 7" ou "Lisboa 10" vira "/nova ..."
+    if cmd and cmd not in COMANDOS and re.search(r"\d", resto):
+        cmd, resto = "nova", texto.strip().lstrip("/")
     args = resto.split()
 
     try:
@@ -726,10 +737,15 @@ def responder(texto: str, viagens: list[dict], cfg: dict, ref: dt.date, tp_token
         if cmd in ("nova", "novo", "viagem", "adicionar"):
             if not resto:
                 return "Diga o destino e os dias. Ex.: <code>/nova Orlando 11-16</code>", False
-            campos, sobra = interpretar_periodo(resto, ref)
+            campos, sobra = interpretar_periodo(resto, ref, com_destino=True)
             dias = interpretar_dias(sobra)
             sobra = re.sub(RE_FAIXA + r"|\b\d{1,2}\b", " ", sobra)
-            nome = " ".join(p for p in sobra.split() if sem_acento(p.lower()) not in PALAVRAS_SOLTAS)
+            palavras = sobra.split()  # tira palavras soltas só das pontas ("Rio de Janeiro" fica inteiro)
+            while palavras and sem_acento(palavras[0].lower()) in PALAVRAS_SOLTAS:
+                palavras.pop(0)
+            while palavras and sem_acento(palavras[-1].lower()) in PALAVRAS_SOLTAS:
+                palavras.pop()
+            nome = " ".join(palavras)
             if not nome:
                 return "Faltou o destino. Ex.: <code>/nova Orlando 11-16</code>", False
             if dias is None:
