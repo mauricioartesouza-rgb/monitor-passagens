@@ -2,23 +2,29 @@ name: Monitor de passagens
 
 on:
   schedule:
-    - cron: "0 11 * * *"   # todo dia às 08:00 (horário de Brasília)
-  workflow_dispatch:         # botão "Run workflow" para rodar na hora
+    - cron: "0 11 * * *"      # busca: todo dia às 08:00 (horário de Brasília)
+    - cron: "*/10 * * * *"    # bot: lê suas mensagens no Telegram a cada ~10 min
+  workflow_dispatch:          # botão "Run workflow" para rodar na hora
     inputs:
       modo:
         description: "O que fazer"
         type: choice
-        options: [buscar, testar-telegram, testar-varredura, simular]
+        options: [buscar, bot, testar-telegram, testar-varredura, simular]
         default: buscar
 
 permissions:
   contents: write
 
-concurrency: monitor-passagens
+env:
+  MODO: ${{ github.event.schedule == '*/10 * * * *' && 'bot' || inputs.modo || 'buscar' }}
+
+# a busca e o bot rodam em filas separadas (um não cancela o outro)
+concurrency: monitor-${{ github.event.schedule == '*/10 * * * *' && 'bot' || inputs.modo || 'buscar' }}
 
 jobs:
-  buscar:
+  rodar:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -32,20 +38,25 @@ jobs:
           TRAVELPAYOUTS_TOKEN: ${{ secrets.TRAVELPAYOUTS_TOKEN }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          MODO: ${{ inputs.modo || 'buscar' }}
         run: |
           case "$MODO" in
-            testar-telegram) python monitor.py --testar-telegram ;;
+            bot)              python monitor.py --bot ;;
+            testar-telegram)  python monitor.py --testar-telegram ;;
             testar-varredura) python monitor.py --varredura ;;
-            simular)         python monitor.py --simular --telegram ;;
-            *)               python monitor.py ;;
+            simular)          python monitor.py --simular --telegram ;;
+            *)                python monitor.py ;;
           esac
 
-      - name: Salvar histórico de preços
-        if: ${{ always() && (inputs.modo || 'buscar') == 'buscar' }}
+      - name: Salvar viagens e histórico
+        if: ${{ always() && (env.MODO == 'buscar' || env.MODO == 'bot') }}
         run: |
           git config user.name "monitor-passagens"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/historico.json RELATORIO.md || true
-          git diff --cached --quiet || git commit -m "Atualiza preços $(date -u +%F)"
-          git push
+          git add -A data RELATORIO.md || true
+          git diff --cached --quiet && exit 0
+          git commit -m "Atualiza $MODO $(date -u +%F)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase -q && git push -q && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
