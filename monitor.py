@@ -33,6 +33,7 @@ import html
 import json
 import os
 import random
+import re
 import sys
 import tomllib
 import urllib.error
@@ -202,6 +203,7 @@ def meses_do_periodo(cfg: dict, ref: dt.date) -> list[str]:
 # ------------------------------------------------- 1. varredura Travelpayouts
 def varrer_travelpayouts(viagem: dict, cfg: dict, ref: dt.date, token: str) -> list[dict]:
     """Preços em cache da Aviasales (1 adulto). Retorna candidatos ordenados por preço."""
+    token = token.strip()
     melhores: dict[tuple[str, str], dict] = {}
     for mes in meses_do_periodo(cfg, ref):
         params = {
@@ -217,7 +219,8 @@ def varrer_travelpayouts(viagem: dict, cfg: dict, ref: dt.date, token: str) -> l
             "limit": 1000,
             "token": token,
         }
-        dados = get_json("https://api.travelpayouts.com/aviasales/v3/prices_for_dates?" + urllib.parse.urlencode(params))
+        dados = get_json("https://api.travelpayouts.com/aviasales/v3/prices_for_dates?" + urllib.parse.urlencode(params),
+                         headers={"X-Access-Token": token, "Accept-Encoding": "identity"})
         if dados.get("success") is False:
             raise RuntimeError(f"Travelpayouts: {dados.get('error') or dados}")
         for item in dados.get("data") or []:
@@ -540,6 +543,8 @@ def main() -> int:
         if not tp_token:
             print("Falta a variável TRAVELPAYOUTS_TOKEN.")
             return 1
+        t = tp_token.strip()
+        print(f"Token: {len(t)} caracteres, formato {'ok (32 hex)' if re.fullmatch(r'[0-9a-f]{32}', t) else 'inesperado'}")
         for v in viagens:
             cands = varrer_travelpayouts(v, cfg, ref, tp_token)
             res = resumo_varredura(cands)
