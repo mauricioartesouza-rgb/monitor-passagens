@@ -1,12 +1,8 @@
 {
  "versao": 1,
- "rodada": 136,
- "cursores": {
-  "orlando-2027": 86,
-  "bariloche-2027": 50
- },
+ "rodada": 137,
  "viagens": {
-  "orlando-2027": {
+  "orlando": {
    "observacoes": [
     {
      "ida": "2027-02-01",
@@ -1297,6 +1293,36 @@
       9000
      ],
      "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAzLTAzagcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMThqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-05-14",
+     "volta": "2027-05-30",
+     "em": "2026-11-28T08:42-03:00",
+     "preco": 10408.0,
+     "companhias": "LATAM",
+     "escalas": 0,
+     "duracao_min": 530,
+     "nivel_google": "typical",
+     "faixa_tipica": [
+      8500,
+      10500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA1LTE0agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDUtMzBqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-02-26",
+     "volta": "2027-03-10",
+     "em": "2026-11-28T08:42-03:00",
+     "preco": 10408.0,
+     "companhias": "LATAM",
+     "escalas": 0,
+     "duracao_min": 530,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      6900,
+      9400
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTI2agcIARIDR1JVcgcIARIDTUNPGh4SCjIwMjctMDMtMTBqBwgBEgNNQ09yBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
     }
    ],
    "recorde": {
@@ -1319,7 +1345,7 @@
     "em": "2026-11-27T08:50-03:00"
    }
   },
-  "bariloche-2027": {
+  "bariloche": {
    "observacoes": [
     {
      "ida": "2027-09-01",
@@ -1680,6 +1706,36 @@
      "nivel_google": null,
      "faixa_tipica": null,
      "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA5LTAzagcIARIDR1JVcgcIARIDQlJDGh4SCjIwMjctMDktMTVqBwgBEgNCUkNyBwgBEgNHUlVAAUABQAJAA0gBcAGYAQE&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2026-12-13",
+     "volta": "2026-12-24",
+     "em": "2026-11-28T08:42-03:00",
+     "preco": 9584.0,
+     "companhias": "Aerolineas Argentinas",
+     "escalas": 1,
+     "duracao_min": 1230,
+     "nivel_google": "typical",
+     "faixa_tipica": [
+      9200,
+      18500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI2LTEyLTEzagcIARIDR1JVcgcIARIDQlJDGh4SCjIwMjYtMTItMjRqBwgBEgNCUkNyBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-01-03",
+     "volta": "2027-01-17",
+     "em": "2026-11-28T08:42-03:00",
+     "preco": 18131.0,
+     "companhias": "Aerolineas Argentinas",
+     "escalas": 1,
+     "duracao_min": 755,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      8100,
+      13000
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAxLTAzagcIARIDR1JVcgcIARIDQlJDGh4SCjIwMjctMDEtMTdqBwgBEgNCUkNyBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
     }
    ],
    "recorde": {
@@ -1694,7 +1750,204 @@
     "faixa_tipica": null,
     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTA5LTAxagcIARIDR1JVcgcIARIDQlJDGh4SCjIwMjctMDktMTNqBwgBEgNCUkNyBwgBEgNHUlVAAUABQAJAA0gBcAGYAQE&tfu=EgIIAQ"
    }
+  },
+  "lisboa": {
+   "observacoes": [
+    {
+     "ida": "2027-02-24",
+     "volta": "2027-03-06",
+     "em": "2026-11-28T08:42-03:00",
+     "preco": 10931.0,
+     "companhias": "Iberia",
+     "escalas": 1,
+     "duracao_min": 810,
+     "nivel_google": "low",
+     "faixa_tipica": [
+      11500,
+      15500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTI0agcIARIDR1JVcgcIARIDTElTGh4SCjIwMjctMDMtMDZqBwgBEgNMSVNyBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    },
+    {
+     "ida": "2027-03-12",
+     "volta": "2027-03-22",
+     "em": "2026-11-28T08:43-03:00",
+     "preco": 10931.0,
+     "companhias": "Iberia",
+     "escalas": 1,
+     "duracao_min": 1115,
+     "nivel_google": "low",
+     "faixa_tipica": [
+      11000,
+      14000
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAzLTEyagcIARIDR1JVcgcIARIDTElTGh4SCjIwMjctMDMtMjJqBwgBEgNMSVNyBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    }
+   ],
+   "recorde": {
+    "ida": "2027-02-24",
+    "volta": "2027-03-06",
+    "em": "2026-11-28T08:42-03:00",
+    "preco": 10931.0,
+    "companhias": "Iberia",
+    "escalas": 1,
+    "duracao_min": 810,
+    "nivel_google": "low",
+    "faixa_tipica": [
+     11500,
+     15500
+    ],
+    "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI3LTAyLTI0agcIARIDR1JVcgcIARIDTElTGh4SCjIwMjctMDMtMDZqBwgBEgNMSVNyBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+   },
+   "ultimo_alerta": {
+    "preco": 10931.0,
+    "em": "2026-11-28T08:42-03:00"
+   }
+  },
+  "ushuaia": {
+   "observacoes": [
+    {
+     "ida": "2026-12-01",
+     "volta": "2026-12-08",
+     "em": "2026-11-28T08:43-03:00",
+     "preco": 16028.0,
+     "companhias": "Aerolineas Argentinas",
+     "escalas": 1,
+     "duracao_min": 1920,
+     "nivel_google": "high",
+     "faixa_tipica": [
+      8000,
+      15500
+     ],
+     "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI2LTEyLTAxagcIARIDR1JVcgcIARIDVVNIGh4SCjIwMjYtMTItMDhqBwgBEgNVU0hyBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+    }
+   ],
+   "recorde": {
+    "ida": "2026-12-01",
+    "volta": "2026-12-08",
+    "em": "2026-11-28T08:43-03:00",
+    "preco": 16028.0,
+    "companhias": "Aerolineas Argentinas",
+    "escalas": 1,
+    "duracao_min": 1920,
+    "nivel_google": "high",
+    "faixa_tipica": [
+     8000,
+     15500
+    ],
+    "link": "https://www.google.com/travel/flights?hl=en&gl=br&curr=BRL&tfs=CBwQAhoeEgoyMDI2LTEyLTAxagcIARIDR1JVcgcIARIDVVNIGh4SCjIwMjYtMTItMDhqBwgBEgNVU0hyBwgBEgNHUlVAAUABQAJIAXABmAEB&tfu=EgIIAQ"
+   }
   }
  },
- "ultimo_resumo": "2026-11-23"
+ "ultimo_resumo": "2026-11-23",
+ "varredura": {
+  "orlando": {
+   "em": "2026-11-28T08:42-03:00",
+   "candidatos": 10,
+   "por_mes": {
+    "2026-11": {
+     "ida": "2026-11-29",
+     "volta": "2026-12-10",
+     "preco_pp": 4116.0,
+     "companhia": "AV",
+     "escalas": 1
+    },
+    "2026-12": {
+     "ida": "2026-12-08",
+     "volta": "2026-12-23",
+     "preco_pp": 3723.0,
+     "companhia": "DM",
+     "escalas": 2
+    },
+    "2027-02": {
+     "ida": "2027-02-26",
+     "volta": "2027-03-10",
+     "preco_pp": 3486.0,
+     "companhia": "AV",
+     "escalas": 1
+    },
+    "2027-04": {
+     "ida": "2027-04-02",
+     "volta": "2027-04-15",
+     "preco_pp": 3571.0,
+     "companhia": "AV",
+     "escalas": 1
+    },
+    "2027-05": {
+     "ida": "2027-05-14",
+     "volta": "2027-05-30",
+     "preco_pp": 3321.0,
+     "companhia": "AV",
+     "escalas": 1
+    }
+   }
+  },
+  "bariloche": {
+   "em": "2026-11-28T08:42-03:00",
+   "candidatos": 1,
+   "por_mes": {
+    "2026-12": {
+     "ida": "2026-12-13",
+     "volta": "2026-12-24",
+     "preco_pp": 2596.0,
+     "companhia": "LA",
+     "escalas": 1
+    }
+   }
+  },
+  "lisboa": {
+   "em": "2026-11-28T08:42-03:00",
+   "candidatos": 12,
+   "por_mes": {
+    "2026-12": {
+     "ida": "2026-12-10",
+     "volta": "2026-12-20",
+     "preco_pp": 5751.0,
+     "companhia": "LX",
+     "escalas": 1
+    },
+    "2027-01": {
+     "ida": "2027-01-14",
+     "volta": "2027-01-24",
+     "preco_pp": 6306.0,
+     "companhia": "LA",
+     "escalas": 0
+    },
+    "2027-02": {
+     "ida": "2027-02-24",
+     "volta": "2027-03-06",
+     "preco_pp": 3609.0,
+     "companhia": "KL",
+     "escalas": 1
+    },
+    "2027-03": {
+     "ida": "2027-03-12",
+     "volta": "2027-03-22",
+     "preco_pp": 3931.0,
+     "companhia": "UX",
+     "escalas": 1
+    },
+    "2027-04": {
+     "ida": "2027-04-10",
+     "volta": "2027-04-20",
+     "preco_pp": 4349.0,
+     "companhia": "G3",
+     "escalas": 1
+    }
+   }
+  },
+  "ushuaia": {
+   "em": "2026-11-28T08:42-03:00",
+   "candidatos": 1,
+   "por_mes": {
+    "2026-12": {
+     "ida": "2026-12-01",
+     "volta": "2026-12-08",
+     "preco_pp": 3106.0,
+     "companhia": "AR",
+     "escalas": 1
+    }
+   }
+  }
+ }
 }
